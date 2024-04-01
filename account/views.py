@@ -2,10 +2,13 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status,permissions
-from .serializers import UserRegisterSerializer,AccountActivationSerializer,MyTokenObtainPairSerializer,UserSerializer
-from .models import AccountActivation
+from .serializers import UserRegisterSerializer,AccountActivationSerializer,MyTokenObtainPairSerializer,UserSerializer,ChangePasswordSerializer,ForgotPasswordSerializer,PasswordResetSerializer
+from .models import AccountActivation,User
 from django.core.mail import send_mail
 from rest_framework.serializers import ValidationError
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
 
 from rest_framework_simplejwt.views import TokenObtainPairView
 
@@ -65,9 +68,8 @@ class MyObtainTokenPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
 
 
-class UserDetailAPIView(APIView):
+class UserDetailAPIView(APIView): 
     permission_classes = [permissions.IsAuthenticated]
-
     def get(self, request, *args, **kwargs):
         try:
             user = self.request.user
@@ -87,7 +89,6 @@ class UserDetailAPIView(APIView):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
-
             raise ValidationError(serializer.errors)
 
         except ValidationError as validation_error:
@@ -100,3 +101,63 @@ class UserDetailAPIView(APIView):
             return Response(
                 {"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        serializer = ChangePasswordSerializer(data=request.data, context={"request": request})
+        if serializer.is_valid():
+            user = request.user
+            user.set_password(serializer.validated_data["password"])
+            user.save()
+            return Response({"message": "Password changed successfully."}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class ForgotPasswordView(APIView):
+    def post(self, request):
+        serializer = ForgotPasswordSerializer(data=request.data)
+        if serializer.is_valid():
+            email = serializer.validated_data['email']
+            try:
+                user = User.objects.get(email=email)
+            except user.DoesNotExist:
+                return Response({"error":"User with this email does not exist"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+        token = default_token_generator.make_token(user)
+
+        reset_link = f"http://127.0.0.1:8000/user/reset-password/{uidb64}/{token}/"
+        subject = "Forgot Password"
+        message = f"Click the link to reset your password: {reset_link}"
+        to_email = user.email
+        send_mail(subject, message, None, [to_email])
+        return Response(
+            {"detail": "Password reset email sent successfully"},
+            status=status.HTTP_200_OK,
+        )
+
+
+class ResetPasswordView(APIView):
+    def post(self, request, uidb64, token, *args, **kwargs):
+        try:
+            uid = urlsafe_base64_decode(uidb64).decode()
+            user = User.objects.get(pk=uid)
+        except (TypeError,ValueError, User.DoesNotExist):
+            user = None
+        if user and default_token_generator.check_token(user, token):
+            serializer = PasswordResetSerializer(data=request.data)
+            if serializer.is_valid():
+                new_password = serializer.validated_data.get("new_password")
+                user.set_password(new_password)
+                user.save()
+                return Response({"detail": "Password reset successfully"}, status=status.HTTP_200_OK)
+            else:
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            return Response({"detail": "Invalid reset link"}, status=status.HTTP_400_BAD_REQUEST)
