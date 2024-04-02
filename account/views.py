@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status,permissions
-from .serializers import UserRegisterSerializer,AccountActivationSerializer,MyTokenObtainPairSerializer,UserSerializer,ChangePasswordSerializer,ForgotPasswordSerializer,PasswordResetSerializer
+from .serializers import UserRegisterSerializer,AccountActivationSerializer,UserSerializer,ChangePasswordSerializer,ForgotPasswordSerializer,PasswordResetSerializer,LoginSerializer
 from .models import AccountActivation,User
 from django.core.mail import send_mail
 from rest_framework.serializers import ValidationError
@@ -64,8 +64,20 @@ class AccountActivationView(APIView):
 
 
 
-class MyObtainTokenPairView(TokenObtainPairView):
-    serializer_class = MyTokenObtainPairSerializer
+
+from rest_framework_simplejwt.tokens import RefreshToken
+
+class Login(APIView):
+    serializer_class = LoginSerializer
+    def post(self, request, *args, **kwargs):
+        serializer = LoginSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        serializer = UserSerializer(user)
+        token = RefreshToken.for_user(user)
+        data = serializer.data
+        data["tokens"] = {"refresh": str(token), "access": str(token.access_token)}
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class UserDetailAPIView(APIView): 

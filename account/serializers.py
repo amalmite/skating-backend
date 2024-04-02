@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User
+from django.contrib.auth import authenticate
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -30,17 +31,15 @@ class AccountActivationSerializer(serializers.Serializer):
     code = serializers.CharField()
 
 
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    
-    @classmethod
-    def get_token(cls, user):
-        token = super(MyTokenObtainPairSerializer, cls).get_token(user)
-        token["username"] = user.username
-        token["email"] = user.email
-        token["is_admin"] = user.is_admin
-        token["is_active"] = user.is_active
-        token["is_user"] = user.is_user
-        return token
+class LoginSerializer(serializers.Serializer):
+    username =serializers.CharField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active:
+            return user
+        raise serializers.ValidationError("Incorrect Credentials")
 
 
 
