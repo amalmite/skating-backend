@@ -1,5 +1,6 @@
 from django.contrib import admin
-from account.models import User,AccountActivation
+from account.models import User, AccountActivation
+
 # Register your models here.
 
 

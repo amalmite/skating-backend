@@ -6,23 +6,27 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('account', '0003_alter_user_phone_number'),
+        ("account", "0003_alter_user_phone_number"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='user',
-            name='email_activation',
+            model_name="user",
+            name="email_activation",
             field=models.BooleanField(default=False),
         ),
         migrations.AddField(
-            model_name='user',
-            name='is_admin',
+            model_name="user",
+            name="is_admin",
             field=models.BooleanField(default=False),
         ),
         migrations.AlterField(
-            model_name='user',
-            name='is_active',
-            field=models.BooleanField(default=True, help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.', verbose_name='active'),
+            model_name="user",
+            name="is_active",
+            field=models.BooleanField(
+                default=True,
+                help_text="Designates whether this user should be treated as active. Unselect this instead of deleting accounts.",
+                verbose_name="active",
+            ),
         ),
     ]

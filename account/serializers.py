@@ -1,18 +1,27 @@
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth import authenticate
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from rest_framework.exceptions import AuthenticationFailed
-
-from django.db.models import Q
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    password2 = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(
+        write_only=True, required=True, style={"input_type": "password"}
+    )
+    password2 = serializers.CharField(
+        write_only=True, required=True, style={"input_type": "password"}
+    )
 
     class Meta:
         model = User
-        fields = ("username", "password", "password2", "email", "phone_number","first_name","last_name")
+        fields = (
+            "username",
+            "password",
+            "password2",
+            "email",
+            "phone_number",
+            "first_name",
+            "last_name",
+        )
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
@@ -32,15 +41,14 @@ class AccountActivationSerializer(serializers.Serializer):
 
 
 class LoginSerializer(serializers.Serializer):
-    username =serializers.CharField()
-    password = serializers.CharField(write_only=True)
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
 
     def validate(self, data):
         user = authenticate(**data)
-        if user and user.is_active:
+        if user and user.email_activation and user.is_active:
             return user
         raise serializers.ValidationError("Incorrect Credentials")
-
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -67,8 +75,12 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
-    password2 = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(
+        write_only=True, required=True, style={"input_type": "password"}
+    )
+    password2 = serializers.CharField(
+        write_only=True, required=True, style={"input_type": "password"}
+    )
     old_password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
@@ -101,14 +113,31 @@ class ForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
 
 
-
 class PasswordResetSerializer(serializers.Serializer):
-    new_password = serializers.CharField(write_only=True)
-    password2 = serializers.CharField(write_only=True, required=True)
-    
+    new_password = serializers.CharField(
+        write_only=True, style={"input_type": "password"}
+    )
+    password2 = serializers.CharField(
+        write_only=True, required=True, style={"input_type": "password"}
+    )
+
     def validate(self, attrs):
         if attrs["new_password"] != attrs["password2"]:
             raise serializers.ValidationError(
                 {"error": "Password fields didn't match."}
             )
+        return attrs
+
+
+class ChangeEmailSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+
+class ChangeEmailVerifySerializer(serializers.Serializer):
+    new_email = serializers.EmailField()
+    code = serializers.CharField()
+
+    def validate(self, attrs):
+        if User.objects.filter(email=attrs).exists():
+            raise serializers.ValidationError("Email already exists.")
         return attrs
