@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User,Employee
 from django.contrib.auth import authenticate
 
 
@@ -141,3 +141,22 @@ class ChangeEmailVerifySerializer(serializers.Serializer):
         if User.objects.filter(email=attrs).exists():
             raise serializers.ValidationError("Email already exists.")
         return attrs
+
+
+
+class EmployeeRegistrationSerializer(serializers.ModelSerializer):
+    user = UserRegisterSerializer()
+
+    class Meta:
+        model = Employee
+        fields = ['user', 'employee_id', 'nationality', 'gender','business_profile','job_role']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user_serializer = UserRegisterSerializer(data=user_data)
+        if user_serializer.is_valid():
+            user = user_serializer.save()
+            employee = Employee.objects.create(user=user, **validated_data)
+            return employee
+        else:
+            raise serializers.ValidationError(user_serializer.errors)

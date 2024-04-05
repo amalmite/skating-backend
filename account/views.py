@@ -12,6 +12,7 @@ from .serializers import (
     LoginSerializer,
     ChangeEmailSerializer,
     ChangeEmailVerifySerializer,
+    EmployeeRegistrationSerializer
 )
 from .models import AccountActivation, User
 from django.core.mail import send_mail
@@ -259,4 +260,12 @@ class ChangeEmailVerifyView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class EmployeeRegistrationAPIView(APIView):
+    def post(self, request):
+        serializer = EmployeeRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'msg':'created'}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
