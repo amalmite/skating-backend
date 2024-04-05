@@ -9,7 +9,8 @@ from .views import (
     Login,
     ChangeEmailVerifyView,
     ChangeEmailView,
-    EmployeeRegistrationAPIView
+    EmployeeRegistrationAPIView,
+    EmployeeProfileAPiView,
 )
 
 from rest_framework.routers import DefaultRouter
@@ -20,10 +21,10 @@ from rest_framework.routers import DefaultRouter
 
 
 urlpatterns = [
-    path("api/register/", UserRegisterView.as_view(), name="user_register"),
+    path("api/user/register/", UserRegisterView.as_view(), name="user_register"),
     path("api/activation/", AccountActivationView.as_view(), name="account_activation"),
     path("api/login/", Login.as_view(), name="login"),
-    path("api/profile/", UserDetailAPIView.as_view(), name="profile"),
+    path("api/user/profile/", UserDetailAPIView.as_view(), name="profile"),
     path("api/change-password/", ChangePasswordView.as_view(), name="change_password"),
     path("api/forgot-password/", ForgotPasswordView.as_view(), name="forgot_password"),
     path(
@@ -37,6 +38,14 @@ urlpatterns = [
         ChangeEmailVerifyView.as_view(),
         name="change_email_verify",
     ),
-    path("api/empolyee/register/", EmployeeRegistrationAPIView.as_view(), name="emplpoyee_register"),
-
+    path(
+        "api/empolyee/register/",
+        EmployeeRegistrationAPIView.as_view(),
+        name="employee_register",
+    ),
+    path(
+        "api/empolyee/profile/",
+        EmployeeProfileAPiView.as_view(),
+        name="employee_profile",
+    ),
 ]

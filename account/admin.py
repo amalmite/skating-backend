@@ -1,5 +1,5 @@
 from django.contrib import admin
-from account.models import User, AccountActivation,Employee,BusinessProfile,Role
+from account.models import User, AccountActivation, Employee, BusinessProfile, Role
 
 # Register your models here.
 

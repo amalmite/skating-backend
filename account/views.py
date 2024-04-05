@@ -12,9 +12,10 @@ from .serializers import (
     LoginSerializer,
     ChangeEmailSerializer,
     ChangeEmailVerifySerializer,
-    EmployeeRegistrationSerializer
+    EmployeeRegistrationSerializer,
+    EmployeeSerializer,
 )
-from .models import AccountActivation, User
+from .models import AccountActivation, User, Employee
 from django.core.mail import send_mail
 from rest_framework.serializers import ValidationError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -33,7 +34,6 @@ class UserRegisterView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-
         if serializer.is_valid():
             user = serializer.save()
             user.is_user = True
@@ -56,6 +56,7 @@ class UserRegisterView(APIView):
 
 
 class AccountActivationView(APIView):
+
     serializer_class = AccountActivationSerializer
 
     def post(self, request, *args, **kwargs):
@@ -88,6 +89,7 @@ class AccountActivationView(APIView):
 
 
 class Login(APIView):
+
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -102,12 +104,15 @@ class Login(APIView):
 
 
 class UserDetailAPIView(APIView):
+    
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
 
     def get(self, request, *args, **kwargs):
         try:
             user = self.request.user
-            serializer = UserSerializer(user)
+            serializer = self.serializer_class(user)
             return Response(serializer.data)
         except Exception as e:
             return Response(
@@ -117,7 +122,7 @@ class UserDetailAPIView(APIView):
     def put(self, request, *args, **kwargs):
         try:
             user = self.request.user
-            serializer = UserSerializer(user, data=request.data, partial=True)
+            serializer = self.serializer_class(user, data=request.data, partial=True)
 
             if serializer.is_valid():
                 serializer.save()
@@ -137,10 +142,12 @@ class UserDetailAPIView(APIView):
 
 
 class ChangePasswordView(APIView):
+
+    serializer_class = ChangePasswordSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
-        serializer = ChangePasswordSerializer(
+        serializer = self.serializer_class(
             data=request.data, context={"request": request}
         )
         if serializer.is_valid():
@@ -154,8 +161,11 @@ class ChangePasswordView(APIView):
 
 
 class ForgotPasswordView(APIView):
+
+    serializer_class = ForgotPasswordSerializer
+
     def post(self, request):
-        serializer = ForgotPasswordSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             email = serializer.validated_data["email"]
             try:
@@ -181,6 +191,9 @@ class ForgotPasswordView(APIView):
 
 
 class ResetPasswordView(APIView):
+    serializer_class = PasswordResetSerializer
+
+     
     def post(self, request, uidb64, token, *args, **kwargs):
         try:
             uid = urlsafe_base64_decode(uidb64).decode()
@@ -188,7 +201,7 @@ class ResetPasswordView(APIView):
         except (TypeError, ValueError, User.DoesNotExist):
             user = None
         if user and default_token_generator.check_token(user, token):
-            serializer = PasswordResetSerializer(data=request.data)
+            serializer = self.serializer_class(data=request.data)
             if serializer.is_valid():
                 new_password = serializer.validated_data.get("new_password")
                 user.set_password(new_password)
@@ -206,9 +219,10 @@ class ResetPasswordView(APIView):
 
 class ChangeEmailView(APIView):
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ChangeEmailSerializer
 
     def post(self, request, format=None):
-        serializer = ChangeEmailSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             user = request.user
@@ -236,10 +250,12 @@ class ChangeEmailView(APIView):
 
 
 class ChangeEmailVerifyView(APIView):
+
+    serializer_class =ChangeEmailVerifySerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, format=None):
-        serializer = ChangeEmailVerifySerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             user = request.user
@@ -262,10 +278,46 @@ class ChangeEmailVerifyView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+# Employee registeration
 class EmployeeRegistrationAPIView(APIView):
+     
+    serializer_class = EmployeeRegistrationSerializer
     def post(self, request):
-        serializer = EmployeeRegistrationSerializer(data=request.data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({'msg':'created'}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "Registeration Sucessfull"}, status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Employee Profile
+class EmployeeProfileAPiView(APIView):
+
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EmployeeSerializer
+
+    def get(self, request, *args, **kwargs):
+        try:
+            employee = Employee.objects.get(user=request.user)
+            serializer = self.serializer_class(employee)
+            return Response(serializer.data)
+        except Employee.DoesNotExist:
+            return Response(
+                {"error": "Employee does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+    def put(self, request, *args, **kwargs):
+        try:
+            employee = Employee.objects.get(user=request.user)
+        except Employee.DoesNotExist:
+            return Response(
+                {"error": "Employee does not exist"}, status=status.HTTP_404_NOT_FOUND
+            )
+        serializer = self.serializer_class(employee, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

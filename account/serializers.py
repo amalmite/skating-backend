@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User,Employee
+from .models import User, Employee
 from django.contrib.auth import authenticate
 
 
@@ -46,9 +46,13 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = authenticate(**data)
-        if user and user.email_activation and user.is_active:
-            return user
-        raise serializers.ValidationError("Incorrect Credentials")
+        if user and user.is_active:
+            if user.is_user:
+                if user.email_activation:
+                    return user
+            elif user.is_employee:
+                return user
+        raise serializers.ValidationError("Incorrect username or password.")
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -63,6 +67,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "is_active",
             "is_user",
+            "is_employee",
         )
 
     def update(self, instance, validated_data):
@@ -143,20 +148,59 @@ class ChangeEmailVerifySerializer(serializers.Serializer):
         return attrs
 
 
-
 class EmployeeRegistrationSerializer(serializers.ModelSerializer):
     user = UserRegisterSerializer()
 
     class Meta:
         model = Employee
-        fields = ['user', 'employee_id', 'nationality', 'gender','business_profile','job_role']
+        fields = [
+            "user",
+            "employee_id",
+            "nationality",
+            "gender",
+            "business_profile",
+            "job_role",
+        ]
 
     def create(self, validated_data):
-        user_data = validated_data.pop('user')
+        user_data = validated_data.pop("user")
         user_serializer = UserRegisterSerializer(data=user_data)
         if user_serializer.is_valid():
             user = user_serializer.save()
+            user.is_employee = True
+            user.save()
             employee = Employee.objects.create(user=user, **validated_data)
             return employee
         else:
             raise serializers.ValidationError(user_serializer.errors)
+
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = Employee
+        fields = "__all__"
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", None)
+        if user_data:
+            user_instance = instance.user
+            user_instance.username = user_data.get("username", user_instance.username)
+            user_instance.first_name = user_data.get(
+                "first_name", user_instance.first_name
+            )
+            user_instance.last_name = user_data.get(
+                "last_name", user_instance.last_name
+            )
+            user_instance.phone_number = user_data.get(
+                "phone_number", user_instance.phone_number
+            )
+            user_instance.save()
+
+        instance.employee_id = validated_data.get("employee_id", instance.employee_id)
+        instance.nationality = validated_data.get("nationality", instance.nationality)
+        instance.gender = validated_data.get("gender", instance.gender)
+        instance.save()
+
+        return instance
