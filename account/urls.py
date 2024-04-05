@@ -39,12 +39,12 @@ urlpatterns = [
         name="change_email_verify",
     ),
     path(
-        "api/empolyee/register/",
+        "api/employee/register/",
         EmployeeRegistrationAPIView.as_view(),
         name="employee_register",
     ),
     path(
-        "api/empolyee/profile/",
+        "api/employee/profile/",
         EmployeeProfileAPiView.as_view(),
         name="employee_profile",
     ),
