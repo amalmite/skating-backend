@@ -1,5 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
+from rest_framework import generics
+
 from rest_framework.response import Response
 from rest_framework import status, permissions
 from .serializers import (
@@ -14,6 +16,8 @@ from .serializers import (
     ChangeEmailVerifySerializer,
     EmployeeRegistrationSerializer,
     EmployeeSerializer,
+    EmployeeLoginSerializer,
+    EmployeeDetails
 )
 from .models import AccountActivation, User, Employee
 from django.core.mail import send_mail
@@ -321,3 +325,25 @@ class EmployeeProfileAPiView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class EmployeeLoginApiView(APIView):
+
+    serializer_class = EmployeeLoginSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data
+        employee = Employee.objects.get(user=user)  
+        serializer = EmployeeDetails(instance=employee)
+        token = RefreshToken.for_user(user)
+        data = serializer.data
+        data["tokens"] = {"refresh": str(token), "access": str(token.access_token)}
+        return Response(data, status=status.HTTP_200_OK)
+
+
+class EmployeeListView(generics.ListAPIView):
+    queryset = Employee.objects.all()
+    serializer_class = EmployeeSerializer

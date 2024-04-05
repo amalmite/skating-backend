@@ -11,6 +11,8 @@ from .views import (
     ChangeEmailView,
     EmployeeRegistrationAPIView,
     EmployeeProfileAPiView,
+    EmployeeLoginApiView,
+    EmployeeListView
 )
 
 from rest_framework.routers import DefaultRouter
@@ -48,4 +50,16 @@ urlpatterns = [
         EmployeeProfileAPiView.as_view(),
         name="employee_profile",
     ),
+    path(
+        "api/employee/login/",
+        EmployeeLoginApiView.as_view(),
+        name="employee_login",
+    ),
+    path(
+        "api/employee/login/",
+        EmployeeLoginApiView.as_view(),
+        name="employee_login",
+    ),
+    path("api/employee/list/", EmployeeListView.as_view(), name="employee_list"),
+
 ]

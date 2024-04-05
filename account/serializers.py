@@ -46,12 +46,8 @@ class LoginSerializer(serializers.Serializer):
 
     def validate(self, data):
         user = authenticate(**data)
-        if user and user.is_active:
-            if user.is_user:
-                if user.email_activation:
-                    return user
-            elif user.is_employee:
-                return user
+        if user and user.is_user and user.is_active and user.email_activation:
+            return user
         raise serializers.ValidationError("Incorrect username or password.")
 
 
@@ -175,6 +171,7 @@ class EmployeeRegistrationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(user_serializer.errors)
 
 
+
 class EmployeeSerializer(serializers.ModelSerializer):
     user = UserSerializer()
 
@@ -198,9 +195,29 @@ class EmployeeSerializer(serializers.ModelSerializer):
             )
             user_instance.save()
 
-        instance.employee_id = validated_data.get("employee_id", instance.employee_id)
+        instance.employee_id = validated_data.get("employee_id", instance.employee_id)  
         instance.nationality = validated_data.get("nationality", instance.nationality)
         instance.gender = validated_data.get("gender", instance.gender)
         instance.save()
 
         return instance
+
+
+class EmployeeDetails(serializers.ModelSerializer):
+    user =UserSerializer()
+    class Meta:
+        model = Employee
+        fields = ['user','job_role', 'employee_id']
+
+
+class EmployeeLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+
+    def validate(self, data):
+        user = authenticate(**data)
+        if user and user.is_active and user.is_employee:
+            return user
+        raise serializers.ValidationError("Incorrect username or password.")
+
+
