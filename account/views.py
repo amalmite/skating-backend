@@ -17,16 +17,18 @@ from .serializers import (
     EmployeeRegistrationSerializer,
     EmployeeSerializer,
     EmployeeLoginSerializer,
-    UserDataSerializer
+    UserDataSerializer,
+    SkatingProductSerializer,
+    
 )
-from .models import AccountActivation, User, Employee
+from .models import AccountActivation, User, Employee, Product
 from django.core.mail import send_mail
 from rest_framework.serializers import ValidationError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from random import randint
-
+from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 
 # Create your views here.
@@ -346,3 +348,67 @@ class EmployeeLoginApiView(APIView):
 class EmployeeListView(generics.ListAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
+
+class SkatingProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = SkatingProductSerializer
+
+
+
+
+
+
+# from .serializers import *
+
+# class UserLoginAPIVew(APIView):
+#     def post(self, request, *args, **kwargs):
+#         serializer = UserLoginSerializer(data=request.data)
+#         if serializer.is_valid():
+#             email = serializer.validated_data.get("email", None)
+#             username = serializer.validated_data.get("username", None)
+#             password = serializer.validated_data["password"]
+
+#             custom_token_serializer = MyTokenObtainPairSerializer()
+
+#             if email is not None:
+#                 user = authenticate(request, email=email, password=password)
+#                 if user is not None:
+#                     token = custom_token_serializer.get_token(user)
+#                     return Response(
+#                         {
+#                             "mes": "User Log in Successfully",
+#                             "jwt_token": {
+#                                 "access": str(token.access_token),
+#                                 "refresh": str(token),
+#                             },
+#                             # "data": UserSerializer(user).data,
+#                         },
+#                         status=status.HTTP_200_OK,
+#                     )
+#                 return Response(
+#                     {"msg": "User Not Found"}, status=status.HTTP_404_NOT_FOUND
+#                 )
+
+#             if username is not None:
+#                 user = authenticate(request, username=username, password=password)
+#                 if user is not None:
+#                     token = custom_token_serializer.get_token(user)
+                    
+#                     return Response(
+#                         {
+#                             "mes": "User Log in Successfully",
+#                             "jwt_token": {
+#                                 "access": str(token.access_token),
+#                                 "refresh": str(token),
+#                             },
+#                             # "data": UserSerializer(user).data,
+#                         },
+#                         status=status.HTTP_200_OK,
+#                     )
+#                 # raise AuthenticationFailed("There is no User")
+#             return Response(
+#                 {"msg": "There is n   o valid Credentials"},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+

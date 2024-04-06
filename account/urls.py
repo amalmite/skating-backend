@@ -12,17 +12,20 @@ from .views import (
     EmployeeRegistrationAPIView,
     EmployeeProfileAPiView,
     EmployeeLoginApiView,
-    EmployeeListView
+    EmployeeListView,
+    SkatingProductViewSet
 )
-
 from rest_framework.routers import DefaultRouter
+from django.conf import settings
+from django.conf.urls.static import static
 
-# router = DefaultRouter()
-# router.register(r'User', UserRegisterView)
-# router.register(r'AccountActivation', AccountActivationView)
+router = DefaultRouter()
+router.register(r'products', SkatingProductViewSet)
+
 
 
 urlpatterns = [
+    path('api/product', include(router.urls)),
     path("api/user/register/", UserRegisterView.as_view(), name="user_register"),
     path("api/activation/", AccountActivationView.as_view(), name="account_activation"),
     path("api/login/", Login.as_view(), name="login"),
@@ -63,3 +66,5 @@ urlpatterns = [
     path("api/employee/list/", EmployeeListView.as_view(), name="employee_list"),
 
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

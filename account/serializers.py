@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Employee
+from .models import User, Employee,Product
 from django.contrib.auth import authenticate
 
 
@@ -227,3 +227,30 @@ class EmployeeLoginSerializer(serializers.Serializer):
         raise serializers.ValidationError("Incorrect username or password.")
 
 
+class SkatingProductSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Product
+        fields="__all__"
+
+
+
+# login
+
+# from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+# from rest_framework_simplejwt.tokens import RefreshToken
+
+
+# class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+#     @classmethod
+#     def get_token(cls, user):
+#         token = RefreshToken.for_user(user)
+#         token["email"] = user.email
+#         token["first_name"] = user.first_name
+#         token["is_active"] = user.is_active
+#         return token
+    
+# class UserLoginSerializer(serializers.Serializer):
+#     email =serializers.CharField(required=False)
+#     username = serializers.CharField(required=False)
+#     password = serializers.CharField(style={"input_type": "password"})
