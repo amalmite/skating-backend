@@ -3,6 +3,20 @@ from .models import User, Employee
 from django.contrib.auth import authenticate
 
 
+
+class EmployeeDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Employee
+        fields = ['job_role', 'employee_id']
+
+class UserDataSerializer(serializers.ModelSerializer):
+    employee = EmployeeDataSerializer(required=False)
+    class Meta:
+        model = User
+        fields = ['email','username','first_name','last_name','is_user','is_admin','is_employee','employee']
+
+
+
 class UserRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(
         write_only=True, required=True, style={"input_type": "password"}
@@ -61,9 +75,7 @@ class UserSerializer(serializers.ModelSerializer):
             "phone_number",
             "first_name",
             "last_name",
-            "is_active",
-            "is_user",
-            "is_employee",
+       
         )
 
     def update(self, instance, validated_data):
@@ -202,12 +214,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
         return instance
 
-
-class EmployeeDetails(serializers.ModelSerializer):
-    user =UserSerializer()
-    class Meta:
-        model = Employee
-        fields = ['user','job_role', 'employee_id']
 
 
 class EmployeeLoginSerializer(serializers.Serializer):

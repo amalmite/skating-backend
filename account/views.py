@@ -17,7 +17,7 @@ from .serializers import (
     EmployeeRegistrationSerializer,
     EmployeeSerializer,
     EmployeeLoginSerializer,
-    EmployeeDetails
+    UserDataSerializer
 )
 from .models import AccountActivation, User, Employee
 from django.core.mail import send_mail
@@ -100,7 +100,7 @@ class Login(APIView):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        serializer = UserSerializer(user)
+        serializer = UserDataSerializer(user)
         token = RefreshToken.for_user(user)
         data = serializer.data
         data["tokens"] = {"refresh": str(token), "access": str(token.access_token)}
@@ -336,8 +336,7 @@ class EmployeeLoginApiView(APIView):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.validated_data
-        employee = Employee.objects.get(user=user)  
-        serializer = EmployeeDetails(instance=employee)
+        serializer = UserDataSerializer(user)
         token = RefreshToken.for_user(user)
         data = serializer.data
         data["tokens"] = {"refresh": str(token), "access": str(token.access_token)}
