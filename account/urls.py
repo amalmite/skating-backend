@@ -13,7 +13,7 @@ from .views import (
     EmployeeProfileAPiView,
     EmployeeLoginApiView,
     EmployeeListView,
-    SkatingProductViewSet
+    SkatingProductViewSet,getRoutes
 )
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
@@ -64,6 +64,8 @@ urlpatterns = [
         name="employee_login",
     ),
     path("api/employee/list/", EmployeeListView.as_view(), name="employee_list"),
+    path("api/", getRoutes)
+
 
 ]
 if settings.DEBUG:

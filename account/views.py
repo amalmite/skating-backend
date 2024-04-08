@@ -46,6 +46,7 @@ class UserRegisterView(APIView):
             user.save()
             email_code = AccountActivation(user=user)
             activation_code = email_code.create_confirmation()
+            print(activation_code,'code')
             try:
                 subject = "Registration OTP"
                 message = f"Your OTP for registration is: {activation_code}"
@@ -95,7 +96,7 @@ class AccountActivationView(APIView):
 
 
 class Login(APIView):
-
+    permission_classes = [permissions.AllowAny]
     serializer_class = LoginSerializer
 
     def post(self, request, *args, **kwargs):
@@ -356,6 +357,15 @@ class SkatingProductViewSet(viewsets.ModelViewSet):
 
 
 
+from rest_framework.decorators import api_view
+@api_view(['GET'])
+def getRoutes(request):
+    routes = {
+        "login": request.build_absolute_uri('/api/login/'),
+        "register": request.build_absolute_uri('/api/user/register/'),
+        "profile": request.build_absolute_uri('/api/user/profile/')
+    }
+    return Response(routes)
 
 
 # from .serializers import *

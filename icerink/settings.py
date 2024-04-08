@@ -27,7 +27,7 @@ SECRET_KEY = "django-insecure-uop5q1uyr_x9!o-e66v#*%+i_lnmvzzk!1$az(iy*m6m3()e+z
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['skateapp.netlify.app','locathost','127.0.0.1']
 
 
 AUTH_USER_MODEL = "account.User"
@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "account",
+    "corsheaders",
+
 ]
 
 MIDDLEWARE = [
@@ -55,6 +57,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+
 ]
 
 ROOT_URLCONF = "icerink.urls"
@@ -159,4 +163,9 @@ REST_FRAMEWORK = {
 AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "account.backends.EmailOrUsernameModelBackend",
+]
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'https://skateapp.netlify.app'
 ]
