@@ -30,7 +30,7 @@ from django.contrib.auth.tokens import default_token_generator
 from random import randint
 from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
-
+from icerink.settings import CORS_ALLOWED_ORIGINS
 # Create your views here.
 
 
@@ -186,7 +186,7 @@ class ForgotPasswordView(APIView):
         uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
         token = default_token_generator.make_token(user)
 
-        reset_link = f"http://127.0.0.1:8000/reset-password/{uidb64}/{token}/"
+        reset_link = f"{CORS_ALLOWED_ORIGINS}reset-password/{uidb64}/{token}/"
         subject = "Forgot Password"
         message = f"Click the link to reset your password: {reset_link}"
         to_email = user.email
