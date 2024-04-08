@@ -179,13 +179,13 @@ class ForgotPasswordView(APIView):
             except User.DoesNotExist:
                 return Response(
                     {"error": "User with this email does not exist"},
-                    status=status.HTTP_404_NOT_FOUND,  # Changed to 404 status
+                    status=status.HTTP_404_NOT_FOUND, 
                 )
 
             uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
 
-            reset_link = f"http://{request.get_host()}/reset-password/{uidb64}/{token}/"  # Changed to request.get_host() to get the host dynamically
+            reset_link = f"http://localhost:3000/reset-password/{uidb64}/{token}/" 
             subject = "Forgot Password"
             message = f"Click the link to reset your password: {reset_link}"
             to_email = user.email
