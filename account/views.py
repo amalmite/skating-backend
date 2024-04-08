@@ -168,7 +168,6 @@ class ChangePasswordView(APIView):
 
 
 class ForgotPasswordView(APIView):
-
     serializer_class = ForgotPasswordSerializer
 
     def post(self, request):
@@ -180,20 +179,31 @@ class ForgotPasswordView(APIView):
             except User.DoesNotExist:
                 return Response(
                     {"error": "User with this email does not exist"},
-                    status=status.HTTP_400_BAD_REQUEST,
+                    status=status.HTTP_404_NOT_FOUND,  # Changed to 404 status
                 )
 
-        uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
-        token = default_token_generator.make_token(user)
+            uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
 
-        reset_link = f"http://{ALLOWED_HOSTS}/reset-password/{uidb64}/{token}/"
-        subject = "Forgot Password"
-        message = f"Click the link to reset your password: {reset_link}"
-        to_email = user.email
-        send_mail(subject, message, None, [to_email])
+            reset_link = f"http://{request.get_host()}/reset-password/{uidb64}/{token}/"  # Changed to request.get_host() to get the host dynamically
+            subject = "Forgot Password"
+            message = f"Click the link to reset your password: {reset_link}"
+            to_email = user.email
+            try:
+                send_mail(subject, message, None, [to_email])
+            except Exception as e:
+                return Response(
+                    {"error": "Failed to send password reset email"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            return Response(
+                {"detail": "Password reset email sent successfully"},
+                status=status.HTTP_200_OK,
+            )
+
         return Response(
-            {"detail": "Password reset email sent successfully"},
-            status=status.HTTP_200_OK,
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 
