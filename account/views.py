@@ -177,7 +177,7 @@ class ForgotPasswordView(APIView):
             email = serializer.validated_data["email"]
             try:
                 user = User.objects.get(email=email)
-            except user.DoesNotExist:
+            except User.DoesNotExist:
                 return Response(
                     {"error": "User with this email does not exist"},
                     status=status.HTTP_400_BAD_REQUEST,
