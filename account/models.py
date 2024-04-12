@@ -61,7 +61,7 @@ class PaymentMode(models.Model):
 
 class BusinessProfile(models.Model):
     name = models.CharField(max_length=64, blank=False, default=None, null=True)
-    mall = models.CharField(max_length=255)
+    mall = models.ForeignKey(Mall,on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=25)
     email = models.EmailField()
     currency = models.CharField(max_length=25)
