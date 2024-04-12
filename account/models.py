@@ -2,31 +2,116 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from random import randint
 
+from location_field.models.plain import PlainLocationField
+
 # Create your models here.
+
+class GroupDashboard(models.Model):
+    name = models.CharField(max_length=255)
+    mobile_number = models.CharField(max_length=20)
+    email = models.EmailField()
+    address = models.TextField()
+    logo = models.FileField(upload_to='logo/')
+
+    def __str__(self):
+        return f"Group dashboard{self.name}"
+
+class Location(models.Model):
+    name = models.CharField(max_length=255)
+    emirates = models.CharField(max_length=255)
+    country = models.CharField(max_length=100)
+    google_map = PlainLocationField(based_fields=['city'], zoom=7)
+
+    def __str__(self):
+        return f"Location {self.name} country {self.country}"
+
+class Mall(models.Model):
+    name = models.CharField(max_length=255)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, verbose_name="Mall Location", null=True)
+    picture = models.FileField(upload_to='mall/')
+
+    def __str__(self):
+        return f"Mall details {self.name} "
+
+class Tax(models.Model):
+    full_name = models.CharField(max_length=255)
+    short_name = models.CharField(max_length=255)
+    tax_percentage_checkbox = models.BooleanField(default=False)
+    tax_percentage = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
+    fixed_price_tax_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+
+    def __str__(self):
+        return f"Tax {self.full_name}"
+    
+class PaymentMode(models.Model):
+
+    STATUS_CHOICES = [
+        ('Active', 'Active'),
+        ('Disabled', 'Disabled'),
+    ]
+
+    name = models.CharField(max_length=100)
+    wallet_id = models.CharField(max_length=100)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Active')
+
+    def __str__(self):
+        return self.name
+    
 
 
 class BusinessProfile(models.Model):
     name = models.CharField(max_length=64, blank=False, default=None, null=True)
     mall = models.CharField(max_length=255)
-    # phone_number = models.CharField(max_length=25)
-    # email = models.EmailField()
-    # currency = models.CharField(max_length=25)
-    # address = models.TextField()
-    # license_number = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=25)
+    email = models.EmailField()
+    currency = models.CharField(max_length=25)
+    select_tax = models.ManyToManyField(Tax,default=None)
+    trn_no = models.CharField(max_length=20)
+    tax_reporting_dates = models.CharField(max_length=100)
+    license_no = models.CharField(max_length=50)
+    expiry = models.DateField()
+    operational_hours_start = models.TimeField()
+    operational_hours_end = models.TimeField()
+    report_generation_start_time = models.TimeField(default='07:00')
+    report_generation_end_time = models.TimeField(default='06:59')
+    invoice_heading = models.CharField(max_length=255)
+    address = models.TextField()
+    logo = models.ImageField(upload_to='logo/')
 
     def __str__(self):
         return f"Business profile{self.name} {self.mall}"
+    
 
-
-class Role(models.Model):
-    name = models.CharField(max_length=255)
-    business_profile = models.ForeignKey(
-        BusinessProfile, on_delete=models.CASCADE, default=None, null=True
-    )
+class Module(models.Model):
+    URL_CHOICES = [
+        ('/product/product/', 'product'),
+    ]
+    URL_NAMES = [
+        ('product Report', '/product/product-report/'),
+    ]
+    url = models.CharField(max_length=150, choices=URL_CHOICES, null=True, verbose_name='Page Name')
+    name = models.CharField(max_length=50, choices=URL_NAMES, null=True, verbose_name='Page URL')
     created_on = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
-        return f"Role profile{self.name}"
+        return self.name
+
+
+class Role(models.Model):
+    ROLE_TYPE_CHOICES = (
+        ('Employee', 'Employee'),
+        ('Business', 'Business'),
+        ('Group', 'Group'),
+        ('Django Admin', 'Django Admin'),
+    )
+
+    name = models.CharField(max_length=100)
+    modules = models.ManyToManyField(Module, default=None)
+    business_profile = models.ForeignKey(BusinessProfile, on_delete=models.CASCADE, default=None, null=True)
+    role_type = models.CharField(max_length=20, choices=ROLE_TYPE_CHOICES)
+
+    def __str__(self):
+        return self.name
 
 
 class User(AbstractUser):
@@ -78,7 +163,6 @@ class AccountActivation(models.Model):
 class Employee(models.Model):
 
     NATIONALITY_CHOICES = [
-        
         ('UAE', 'United Arab Emirates'),
         ('US', 'United States'),
         ('UK', 'United Kingdom'),
@@ -101,15 +185,15 @@ class Employee(models.Model):
         BusinessProfile, on_delete=models.CASCADE, default=None, null=True
     )
     job_role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
-    # passport_no = models.CharField(max_length=20, unique=True)
-    # passport_expiration_date = models.DateField()
-    # emirates_id = models.CharField(max_length=20, unique=True)
-    # id_expiration_date = models.DateField()
-    # basic_pay = models.DecimalField(max_digits=10, decimal_places=2)
-    # house_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # transportation_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # commission_percentage = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    # joining_date = models.DateField()
+    passport_no = models.CharField(max_length=20, unique=True)
+    passport_expiration_date = models.DateField()
+    emirates_id = models.CharField(max_length=20, unique=True)
+    id_expiration_date = models.DateField()
+    basic_pay = models.DecimalField(max_digits=10, decimal_places=2)
+    house_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    transportation_allowance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    commission_percentage = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    joining_date = models.DateField()
 
     def __str__(self):
         return f"Employee: {self.user.username}, Job Role: {self.job_role}"
