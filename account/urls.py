@@ -13,8 +13,7 @@ from .views import (
     EmployeeProfileAPiView,
     EmployeeLoginApiView,
     EmployeeListView,
-    SkatingProductViewSet,getRoutes
-)
+    SkatingProductViewSet,getRoutes,CreateSessionAPIView)
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
@@ -64,6 +63,9 @@ urlpatterns = [
         name="employee_login",
     ),
     path("api/employee/list/", EmployeeListView.as_view(), name="employee_list"),
+
+    path("api/session/", CreateSessionAPIView.as_view(), name="employee_list"),
+
     path("api/", getRoutes)
 
 

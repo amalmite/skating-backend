@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User, Employee,Product
+from .models import *
 from django.contrib.auth import authenticate
 
 
@@ -233,6 +233,10 @@ class SkatingProductSerializer(serializers.ModelSerializer):
         model = Product
         fields="__all__"
 
+class SessionSchedulingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionScheduling
+        fields = '__all__'
 
 
 # login

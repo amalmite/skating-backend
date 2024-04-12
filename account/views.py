@@ -4,24 +4,8 @@ from rest_framework import generics
 
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .serializers import (
-    UserRegisterSerializer,
-    AccountActivationSerializer,
-    UserSerializer,
-    ChangePasswordSerializer,
-    ForgotPasswordSerializer,
-    PasswordResetSerializer,
-    LoginSerializer,
-    ChangeEmailSerializer,
-    ChangeEmailVerifySerializer,
-    EmployeeRegistrationSerializer,
-    EmployeeSerializer,
-    EmployeeLoginSerializer,
-    UserDataSerializer,
-    SkatingProductSerializer,
-    
-)
-from .models import AccountActivation, User, Employee, Product
+from .serializers import *
+from .models import *
 from django.core.mail import send_mail
 from rest_framework.serializers import ValidationError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -431,4 +415,40 @@ def getRoutes(request):
 #                 status=status.HTTP_400_BAD_REQUEST,
 #             )
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+from datetime import timedelta,datetime
 
+class CreateSessionAPIView(APIView):
+    def get(self,request):
+        data =SessionScheduling.objects.all()
+        serializers=SessionSchedulingSerializer(data,many=True)
+        return Response(serializers.data)
+    
+    def post(self, request):
+        serializer = SessionSchedulingSerializer(data=request.data)
+        if serializer.is_valid():
+            from_date = serializer.validated_data['from_date']
+            to_date = serializer.validated_data['to_date']
+            start_time = serializer.validated_data['start_time']
+            end_time = serializer.validated_data['end_time']
+            no_of_slot = serializer.validated_data['no_of_slot']
+            delta = timedelta(days=1)
+            current_date = from_date
+            start_datetime = datetime.combine(datetime.today(), start_time)
+            while current_date <= to_date:
+                for i in range(no_of_slot):
+                    session_start_time = start_datetime + timedelta(hours=i)
+                    session_end_time = session_start_time + timedelta(hours=1)
+                    session = SessionScheduling.objects.create(
+                        from_date=current_date,
+                        to_date=current_date,
+                        start_time=session_start_time.time(),  
+                        end_time=session_end_time.time(), 
+                    )
+                    session.save()
+                current_date += delta
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request):
+        SessionScheduling.objects.all().delete()
+        return Response({"message": "deleted"}, status=status.HTTP_204_NO_CONTENT)
