@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,HttpResponse
 from rest_framework.views import APIView
 from rest_framework import generics
 
@@ -16,6 +16,42 @@ from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 from icerink.settings import ALLOWED_HOSTS
 # Create your views here.
+
+from django.contrib.auth import logout
+from django.shortcuts import redirect
+
+from django.views.generic import TemplateView
+from web_project import TemplateLayout
+
+
+"""
+This file is a view controller for multiple pages as a module.
+Here you can override the page view layout.
+Refer to test/urls.py file for more pages.
+"""
+
+
+class testView(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        return context
+    
+class HeaderForm(TemplateView):
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        return context
+    
+
+def index(request):
+    return HttpResponse('hello')
+
+def dashboard_crm(request):
+    return HttpResponse('hello')
+
+def logout_admin(request):
+    logout(request)
+    return redirect('index') 
+
 
 
 class UserRegisterView(APIView):
