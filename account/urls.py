@@ -14,6 +14,7 @@ from .views import (
     EmployeeLoginApiView,
     EmployeeListView,
     SkatingProductViewSet,getRoutes,CreateSessionAPIView)
+from .views import *
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
@@ -24,6 +25,18 @@ router.register(r'products', SkatingProductViewSet)
 
 
 urlpatterns = [
+    path('',testView.as_view(template_name="test.html"),name="test"),
+    path('header_form/',HeaderForm.as_view(template_name="header_form.html"),name="header-form"),
+
+
+
+
+    path('inedx/',index,name="index"),
+    path('dashboard/',dashboard_crm,name="dashboard-crm"),
+    path('logout/',logout_admin,name="logout"),
+
+
+
     path('api/product', include(router.urls)),
     path("api/user/register/", UserRegisterView.as_view(), name="user_register"),
     path("api/activation/", AccountActivationView.as_view(), name="account_activation"),
