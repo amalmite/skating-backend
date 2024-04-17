@@ -3,133 +3,160 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %} Header Form{% endblock title %}
-<link rel="stylesheet" href="assets/vendor/libs/dropzone/dropzone.css" />
+{% block title %}Horizontal Layouts - Forms{% endblock %}
+
+{% block vendor_css %}
+<!-- <link rel="stylesheet" href="assets/vendor/libs/flatpickr/flatpickr.css" /> -->
+{{ block.super }}
+{% endblock vendor_css %}
+{% block vendor_js %}
+<!-- <script src="assets/vendor/libs/flatpickr/flatpickr.js" ></script> -->
+{{ block.super }}
 <script>
-    const myDropzone = new Dropzone('#dropzone-basic', {
-        previewTemplate: previewTemplate,
-        parallelUploads: 1,
-        maxFilesize: 5,
-        addRemoveLinks: true,
-        maxFiles: 1
+    var flatpickrDateTime = document.querySelector("#flatpickr-datetime");
+
+    flatpickrDateTime.flatpickr({
+        enableTime: true,
+        dateFormat: "Y-m-d H:i"
     });
 </script>
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/form-layouts.js' %}"></script>
+{% endblock page_js %}
+
 {% block content %}
+<h4 class="py-3 mb-4">
+    <span class="text-muted fw-light">{% translate "Forms" %} /</span> {% translate "Horizontal" %} {% translate "Layouts" %}
+</h4>
 
-<h4 class="py-3 mb-4">{% translate "Title: Header Form" %}</h4>
-<form>
-    <div class="form-floating form-floating-outline mb-4">
-        <input class="form-control" type="text" placeholder="Banner Name" id="html5-text-input" />
-        <label for="html5-text-input">Banner Name
-        </label>
-    </div>
+<!-- Basic Layout & Basic with Icons -->
+<div class="row">
+    <!-- Basic Layout -->
+    
+    <div class="card mb-4">
+        <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="mb-0">Basic Layout</h5> <small class="text-muted float-end">Default label</small>
+        </div>
+        <div class="card-body">
+            <form>
+                {% csrf_token %}
 
-
-    <div class="form-floating form-floating-outline mb-4 ">
-        <div class="row">
-            <div class="col-lg-6">
                 <div class="form-floating form-floating-outline mb-4">
-                    <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="flatpickr-date1" />
-                    <label for="flatpickr-date1">Date Picker 1</label>
+                    <input class="form-control" type="text" placeholder="Banner Name" id="banner-name-input" />
+                    <label for="banner-name-input">{% translate "Banner Name" %}</label>
                 </div>
-            </div>
-            <div class="col-lg-6">
+
+                <!-- Date pickers -->
+                <!-- <div class="form-floating form-floating-outline mb-4 ">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="flatpickr-date1" />
+                                <label for="flatpickr-date1">{% translate "Start Date" %}</label>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="flatpickr-date2" />
+                                <label for="flatpickr-date2">{% translate "End Date" %}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Radio buttons -->
+                <div class="form-floating form-floating-outline mb-4 bg-white">
+                    <div class="row">
+                        <div class="col-md mb-md-0 mb-4">
+                            <div class="form-check custom-option custom-option-icon">
+                                <label class="form-check-label custom-option-content" for="customRadioSvg1">
+                                    <span class="custom-option-body">
+                                        <span class="custom-option-title">{% translate "Book Now" %}</span>
+                                        <small>{% translate "Book Now  book a session" %}</small>
+                                    </span>
+                                    <input name="customRadioSvg" class="form-check-input" type="radio" value="" id="customRadioSvg1" checked />
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md mb-md-0 mb-4">
+                            <div class="form-check custom-option custom-option-icon">
+                                <label class="form-check-label custom-option-content" for="customRadioSvg2">
+                                    <span class="custom-option-body">
+                                        <span class="custom-option-title">{% translate "URL" %}</span>
+                                        <small>{% translate "Advertisement " %}</small>
+                                    </span>
+                                    <input name="customRadioSvg" class="form-check-input" type="radio" value="" id="customRadioSvg2" />
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- URL input -->
                 <div class="form-floating form-floating-outline mb-4">
-                    <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="flatpickr-date2" />
-                    <label for="flatpickr-date2">Date Picker 2</label>
+                    <input class="form-control" type="url" placeholder="https://pixinvent.com" id="url-input" />
+                    <label for="url-input">{% translate "URL" %}</label>
                 </div>
-            </div>
+
+                <!-- Select options -->
+                <div class="form-floating form-floating-outline mb-4">
+                    <select id="selectpickerGroups" class="form-control w-100" data-style="btn-default">
+                        <option>Rocky</option>
+                        <option>Pulp Fiction</option>
+                        <option>The Godfather</option>
+                    </select>
+                    <label for="selectpickerGroups">{% translate "Session" %}</label>
+                </div>
+
+                <!-- Banner Text inputs -->
+                <div class="form-floating form-floating-outline mb-4">
+                    <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input" />
+                    <label for="banner-text-input">{% translate "Banner Text" %}</label>
+                </div>
+
+                <!-- Multiple Banner Text inputs -->
+                <div class="form-floating form-floating-outline mb-4">
+                    <div class="row">
+                        <div class="col-md mb-md-0 mb-4">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input1" />
+                                <label for="banner-text-input1">{% translate "Banner Text" %}</label>
+                            </div>
+                        </div>
+                        <div class="col-md mb-md-0 mb-4">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input2" />
+                                <label for="banner-text-input2">{% translate "Banner Text" %}</label>
+                            </div>
+                        </div>
+                        <div class="col-md mb-md-0 mb-4">
+                            <div class="form-floating form-floating-outline mb-4">
+                                <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input3" />
+                                <label for="banner-text-input3">{% translate "Banner Text" %}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="formFileLg" class="form-label">Large file input example</label>
+                    <input class="form-control form-control-lg" id="formFileLg" type="file">
+
+                </div>
+
+
+                <div class="row mb-3">
+                    <div class="col-sm-10">
+                        <button type="submit" class="btn btn-primary">Send</button>
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
-
-
-    <div class="form-floating form-floating-outline mb-4 ">
-        <div class="row">
-            <div class="col-md mb-md-0 mb-4">
-                <div class="form-check custom-option custom-option-icon">
-                    <label class="form-check-label custom-option-content" for="customRadioSvg1">
-                        <span class="custom-option-body">
-                            <span class="custom-option-title"> Design </span>
-                            <small>Cake sugar plum fruitcake I love sweet roll jelly-o.</small>
-                        </span>
-                        <input name="customRadioSvg" class="form-check-input" type="radio" value="" id="customRadioSvg1"
-                            checked />
-                    </label>
-                </div>
-            </div>
-            <div class="col-md mb-md-0 mb-4">
-                <div class="form-check custom-option custom-option-icon">
-                    <label class="form-check-label custom-option-content" for="customRadioSvg2">
-                        <span class="custom-option-body">
-                            <span class="custom-option-title"> Development </span>
-                            <small> Cake sugar plum fruitcake I love sweet roll jelly-o. </small>
-                        </span>
-                        <input name="customRadioSvg" class="form-check-input" type="radio" value=""
-                            id="customRadioSvg2" />
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="form-floating form-floating-outline mb-4">
-        <input class="form-control" type="url" placeholder="https://pixinvent.com" id="html5-url-input" />
-        <label for="html5-url-input">URL</label>
-    </div>
-
-
-    <div class="form-floating form-floating-outline mb-4">
-        <select id="selectpickerGroups" class="form-control w-100" data-style="btn-default">
-            <optgroup label="Movies">
-                <option>Rocky</option>
-                <option>Pulp Fiction</option>
-                <option>The Godfather</option>
-            </optgroup>
-            <optgroup label="Series">
-                <option>Breaking Bad</option>
-                <option>Black Mirror</option>
-                <option>Money Heist</option>
-            </optgroup>
-        </select>
-        <label for="selectpickerGroups">Session</label>
-    </div>
-
-    <div class="form-floating form-floating-outline mb-4">
-        <input class="form-control" type="text" placeholder="Banner Text" id="html5-text-input" />
-        <label for="html5-text-input">Button Text
-        </label>
-    </div>
-
-
-    <div class="form-floating form-floating-outline mb-4 ">
-        <div class="row">
-            <div class="col-md mb-md-0 mb-4">
-                <div class="form-floating form-floating-outline mb-4">
-                    <input class="form-control" type="text" placeholder="Banner Text" id="html5-text-input" />
-                    <label for="html5-text-input">Button Text
-                    </label>
-                </div>
-            </div>
-            <div class="col-md mb-md-0 mb-4">
-                <div class="form-floating form-floating-outline mb-4">
-                    <input class="form-control" type="text" placeholder="Banner Text" id="html5-text-input" />
-                    <label for="html5-text-input">Button Text
-                    </label>
-                </div>
-            </div>
-            <div class="col-md mb-md-0 mb-4">
-                <div class="form-floating form-floating-outline mb-4">
-                    <input class="form-control" type="text" placeholder="Banner Text" id="html5-text-input" />
-                    <label for="html5-text-input">Button Text
-                    </label>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-
-</form>
+</div>
 
 {% endblock %}
-<script src="assets/vendor/libs/dropzone/dropzone.js"></script>

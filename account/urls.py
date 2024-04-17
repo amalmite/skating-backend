@@ -26,7 +26,7 @@ router.register(r'products', SkatingProductViewSet)
 
 urlpatterns = [
     path('',testView.as_view(template_name="test.html"),name="test"),
-    # path('header_form/',HeaderForm.as_view(template_name="header_form.html"),name="header-form"),
+    path('header_form/',HeaderForm.as_view(template_name="header_form.html"),name="header-form"),
 
 
 
