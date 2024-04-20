@@ -26,7 +26,14 @@ router.register(r'products', SkatingProductViewSet)
 
 urlpatterns = [
     path('',testView.as_view(template_name="test.html"),name="test"),
-    # path('header_form/',HeaderForm.as_view(template_name="header_form.html"),name="header-form"),
+    path('header-form/', TransactionAddView.as_view(template_name="header_form.html"), name="header-form"),
+    path('session-creation/', SessionCreation.as_view(template_name="Session/create_session.html"), name="session-creation"),
+    path('product-creation/', ProductCreation.as_view(template_name="Product/create_product.html"), name="product-creation"),
+    path('session-schedule/', SessionSchedule.as_view(template_name="Session/session_schedule.html"), name="session-schedule"),
+    # path('session/', CreateSession.as_view(template_name = "session.html"), name="session"),
+    path('session/', create_session, name="session"),
+
+
 
 
 

@@ -165,7 +165,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
@@ -222,6 +222,11 @@ THEME_LAYOUT_DIR = THEME_LAYOUT_DIR
 TEMPLATE_CONFIG = TEMPLATE_CONFIG
 THEME_VARIABLES = THEME_VARIABLES
 
+# STATICFILES_DIRS = [
+#     BASE_DIR / "src" / "assets",
+# ]
+
 STATICFILES_DIRS = [
-    BASE_DIR / "src" / "assets",
+    os.path.join(BASE_DIR, 'src', 'assets'), 
 ]
+BASE_URL = os.environ.get("BASE_URL", default="http://127.0.0.1:8000")

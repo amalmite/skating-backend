@@ -3,160 +3,213 @@
 {% load static %}
 {% load i18n %}
 
-{% block title %}Horizontal Layouts - Forms{% endblock %}
+{% block title %}HEADER FORM{% endblock %}
 
 {% block vendor_css %}
-<!-- <link rel="stylesheet" href="assets/vendor/libs/flatpickr/flatpickr.css" /> -->
 {{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-select/bootstrap-select.css'%}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/dropzone/dropzone.css'%}" />
 {% endblock vendor_css %}
-{% block vendor_js %}
-<!-- <script src="assets/vendor/libs/flatpickr/flatpickr.js" ></script> -->
-{{ block.super }}
-<script>
-    var flatpickrDateTime = document.querySelector("#flatpickr-datetime");
 
-    flatpickrDateTime.flatpickr({
-        enableTime: true,
-        dateFormat: "Y-m-d H:i"
-    });
-</script>
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/bundle/popular.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-bootstrap5/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-auto-focus/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-select/bootstrap-select.js'%}"></script>
+<script src="{% static 'vendor/libs/dropzone/dropzone.js'%}"></script>
 {% endblock vendor_js %}
 
 {% block page_js %}
 {{ block.super }}
-<script src="{% static 'js/form-layouts.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    flatpickr("#transaction-date", {
+      dateFormat: "Y-m-d",
+    });
+    flatpickr("#due-date", {
+      dateFormat: "Y-m-d",
+    });
+  });
+
+  const myDropzone = new Dropzone('#dropzone-basic', {
+    parallelUploads: 1,
+    maxFilesize: 5,
+    addRemoveLinks: true,
+    maxFiles: 1
+  });
+</script>
 {% endblock page_js %}
 
 {% block content %}
 <h4 class="py-3 mb-4">
-    <span class="text-muted fw-light">{% translate "Forms" %} /</span> {% translate "Horizontal" %} {% translate "Layouts" %}
+  <span class="text-muted fw-light">{% translate "Header" %} /</span> {% translate " Add " %} {% translate "New Header" %}
 </h4>
+<div class="card">
+  <div class="card-body mt-4">
+    <form class="add-transactions pt-0" id="addTransactionForm" action="" method="post">
+      {% csrf_token %}
+      <div class="form-floating form-floating-outline mb-4">
+        <input type="text" class="form-control " id="banner-name" name="=banner-name"
+          placeholder="{% translate 'Banner Name' %}" />
+        <label for="banner-name">{% translate 'Banner Name' %}</label>
+      </div>
 
-<!-- Basic Layout & Basic with Icons -->
-<div class="row">
-    <!-- Basic Layout -->
-    
-    <div class="card mb-4">
-        <div class="card-header d-flex align-items-center justify-content-between">
-            <h5 class="mb-0">Basic Layout</h5> <small class="text-muted float-end">Default label</small>
+      <div class="row">
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4 ">
+            <input type="text" id="due-date" class="form-control" name="due_date"
+              placeholder="{% translate 'Due Date' %}" />
+            <label for="due-date">{% translate 'Due Date' %}</label>
+          </div>
         </div>
-        <div class="card-body">
-            <form>
-                {% csrf_token %}
-
-                <div class="form-floating form-floating-outline mb-4">
-                    <input class="form-control" type="text" placeholder="Banner Name" id="banner-name-input" />
-                    <label for="banner-name-input">{% translate "Banner Name" %}</label>
-                </div>
-
-                <!-- Date pickers -->
-                <!-- <div class="form-floating form-floating-outline mb-4 ">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="flatpickr-date1" />
-                                <label for="flatpickr-date1">{% translate "Start Date" %}</label>
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input type="text" class="form-control" placeholder="YYYY-MM-DD" id="flatpickr-date2" />
-                                <label for="flatpickr-date2">{% translate "End Date" %}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div> -->
-
-                <!-- Radio buttons -->
-                <div class="form-floating form-floating-outline mb-4 bg-white">
-                    <div class="row">
-                        <div class="col-md mb-md-0 mb-4">
-                            <div class="form-check custom-option custom-option-icon">
-                                <label class="form-check-label custom-option-content" for="customRadioSvg1">
-                                    <span class="custom-option-body">
-                                        <span class="custom-option-title">{% translate "Book Now" %}</span>
-                                        <small>{% translate "Book Now  book a session" %}</small>
-                                    </span>
-                                    <input name="customRadioSvg" class="form-check-input" type="radio" value="" id="customRadioSvg1" checked />
-                                </label>
-                            </div>
-                        </div>
-                        <div class="col-md mb-md-0 mb-4">
-                            <div class="form-check custom-option custom-option-icon">
-                                <label class="form-check-label custom-option-content" for="customRadioSvg2">
-                                    <span class="custom-option-body">
-                                        <span class="custom-option-title">{% translate "URL" %}</span>
-                                        <small>{% translate "Advertisement " %}</small>
-                                    </span>
-                                    <input name="customRadioSvg" class="form-check-input" type="radio" value="" id="customRadioSvg2" />
-                                </label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- URL input -->
-                <div class="form-floating form-floating-outline mb-4">
-                    <input class="form-control" type="url" placeholder="https://pixinvent.com" id="url-input" />
-                    <label for="url-input">{% translate "URL" %}</label>
-                </div>
-
-                <!-- Select options -->
-                <div class="form-floating form-floating-outline mb-4">
-                    <select id="selectpickerGroups" class="form-control w-100" data-style="btn-default">
-                        <option>Rocky</option>
-                        <option>Pulp Fiction</option>
-                        <option>The Godfather</option>
-                    </select>
-                    <label for="selectpickerGroups">{% translate "Session" %}</label>
-                </div>
-
-                <!-- Banner Text inputs -->
-                <div class="form-floating form-floating-outline mb-4">
-                    <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input" />
-                    <label for="banner-text-input">{% translate "Banner Text" %}</label>
-                </div>
-
-                <!-- Multiple Banner Text inputs -->
-                <div class="form-floating form-floating-outline mb-4">
-                    <div class="row">
-                        <div class="col-md mb-md-0 mb-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input1" />
-                                <label for="banner-text-input1">{% translate "Banner Text" %}</label>
-                            </div>
-                        </div>
-                        <div class="col-md mb-md-0 mb-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input2" />
-                                <label for="banner-text-input2">{% translate "Banner Text" %}</label>
-                            </div>
-                        </div>
-                        <div class="col-md mb-md-0 mb-4">
-                            <div class="form-floating form-floating-outline mb-4">
-                                <input class="form-control" type="text" placeholder="Banner Text" id="banner-text-input3" />
-                                <label for="banner-text-input3">{% translate "Banner Text" %}</label>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <div class="mb-3">
-                    <label for="formFileLg" class="form-label">Large file input example</label>
-                    <input class="form-control form-control-lg" id="formFileLg" type="file">
-
-                </div>
-
-
-                <div class="row mb-3">
-                    <div class="col-sm-10">
-                        <button type="submit" class="btn btn-primary">Send</button>
-                    </div>
-                </div>
-            </form>
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4 ">
+            <input type="text" id="due-date" class="form-control" name="due_date"
+              placeholder="{% translate 'Due Date' %}" />
+            <label for="due-date">{% translate 'Due Date' %}</label>
+          </div>
         </div>
-    </div>
+      </div>
+
+
+
+      <div class="row ">
+        <div class="col-md ">
+          <div class="form-check custom-option custom-option-basic mb-4">
+            <label class="form-check-label custom-option-content" for="customRadioTemp1">
+              <input name="customRadioTemp" class="form-check-input" type="radio" value="" id="customRadioTemp1" />
+              <span class="custom-option-header">
+                <span class="h6 mb-0">URL</span>
+              </span>
+              <span class="custom-option-body">
+                <small>Add custom advertisement</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-check custom-option custom-option-basic mb-4">
+            <label class="form-check-label custom-option-content" for="customRadioTemp2">
+              <input name="customRadioTemp" class="form-check-input" type="radio" value="" id="customRadioTemp2" />
+              <span class="custom-option-header">
+                <span class="h6 mb-0">Book Now</span>
+              </span>
+              <span class="custom-option-body">
+                <small>Session as an opportunity for advertisement</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="form-floating form-floating-outline mb-4" id="select_session">
+        <select id="selectpickerBasic" class="selectpicker w-100" data-style="btn-default">
+          <option></option>
+
+          <option>Rocky</option>
+          <option>Pulp Fiction</option>
+          <option>The Godfather</option>
+        </select>
+        <label for="selectpickerBasic"></label>
+      </div>
+
+
+      <div class="form-floating form-floating-outline mb-4" id="enter_url">
+        <input type="text" class="form-control " id="url" name="url"
+          placeholder="{% translate 'https://mitesolutions.com/' %}" />
+        <label for="url">{% translate 'Enter URL' %}</label>
+      </div>
+
+      <div class="form-floating form-floating-outline mb-4">
+        <input type="text" class="form-control " id="button-name" name="button-name"
+          placeholder="{% translate 'Book Now' %}" />
+        <label for="button-name">{% translate 'Button Name' %}</label>
+      </div>
+
+
+      <div class="row">
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="text" class="form-control " id="banner-text1" name="banner-text1"
+              placeholder="{% translate 'Enjoy' %}" />
+            <label for="banner-text1">{% translate 'Banner Text' %}</label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="text" class="form-control " id="banner-text2" name="banner-text2"
+              placeholder="{% translate 'With' %}" />
+            <label for="banner-text2">{% translate 'Banner Text' %}</label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="text" class="form-control " id="banner-tex31" name="banner-tex31"
+              placeholder="{% translate 'Family' %}" />
+            <label for="banner-tex31">{% translate 'Banner Text' %}</label>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="dropzone needsclick  mb-4" id="dropzone-basic">
+        <div class="dz-message needsclick">
+          Drop files here or click to upload
+          <span class="note needsclick">(This is just a demo dropzone. Selected files are <span
+              class="fw-medium">not</span> actually uploaded.)</span>
+        </div>
+        <div class="fallback">
+          <input name="file" type="file" />
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary me-sm-3 me-1" name="submitButton">{% translate 'Submit' %}</button>
+    </form>
+  </div>
 </div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const urlRadio = document.getElementById("customRadioTemp1");
+    const bookNowRadio = document.getElementById("customRadioTemp2");
+
+    const sessionSelect = document.getElementById("select_session");
+    const urlInput = document.getElementById("enter_url");
+    const dropzone = document.getElementById("dropzone-basic");
+
+    sessionSelect.style.display = "none";
+    urlInput.style.display = "none";
+    dropzone.style.display = "none";
+
+
+    urlRadio.addEventListener("change", function () {
+      if (this.checked) {
+        urlInput.style.display = "block";
+        dropzone.style.display = "block";
+        sessionSelect.style.display = "none";
+      }
+    });
+
+    bookNowRadio.addEventListener("change", function () {
+      if (this.checked) {
+        sessionSelect.style.display = "block";
+        urlInput.style.display = "none";
+        dropzone.style.display = "none";
+      }
+    });
+  });
+</script>
 
 {% endblock %}

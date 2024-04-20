@@ -1,0 +1,226 @@
+{% extends layout_path %}
+{% load static %}
+{% load i18n %}
+{% block title%}session creation{% endblock %}
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-select/bootstrap-select.css'%}" />
+<!-- <link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css'%} " />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"> -->
+<link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/tagify/tagify.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/quill/typography.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/quill/katex.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/quill/editor.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+
+{% endblock vendor_css %}
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/bootstrap-select/bootstrap-select.js'%}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/dropzone/dropzone.js' %}"></script>
+<script src="{% static 'vendor/libs/jquery-repeater/jquery-repeater.js' %}"></script>
+<script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js'%}"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{% static 'vendor/libs/quill/katex.js' %}"></script>
+<script src="{% static 'vendor/libs/quill/quill.js' %}"></script>
+<script src="{% static 'vendor/libs/tagify/tagify.js' %}"></script>
+
+{% endblock vendor_js %}
+{% block page_js %}
+{{ block.super }}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    flatpickr("#transaction-date", {
+      dateFormat: "Y-m-d",
+    });
+    flatpickr("#due-date", {
+      dateFormat: "Y-m-d",
+    });
+  });
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    flatpickr("#flatpickr-time", {
+      enableTime: true,
+      noCalendar: true,
+    });
+  }); 
+</script>
+<script>
+  var $repeater = $(".repeater").repeater({
+    repeaters: [
+      {
+        selector: ".inner-repeater",
+      },
+    ],
+  });
+
+  $repeater.setList([
+    {
+      "text-input": "",
+      "inner-list": [
+        {
+          "inner-text-input": "",
+          "deep-inner-list": [
+            {
+              "inner-text-input": "",
+            },
+          ],
+        },
+      ],
+    },
+  ]);
+</script>
+
+<script src="{% static 'js/app-ecommerce-product-add.js' %}"></script>
+
+{% endblock page_js %}
+{% block content %}
+<h4 class="py-3 mb-4">
+  <span class="text-muted fw-light">{% translate "Session" %} /</span>
+  {% translate " Schedule " %}
+</h4>
+<div class="card">
+  <div class="card-body mt-4">
+    <form class="add-transactions pt-0" method="post">
+      {% csrf_token %}
+      <div class="form-floating form-floating-outline mb-4" id="select_session">
+        <select id="selectpickerBasic" class="selectpicker w-100" data-style="btn-default">
+          <option>Select session</option>
+          <option>Rocky</option>
+          <option>Pulp Fiction</option>
+          <option>The Godfather</option>
+        </select>
+      </div>
+
+      <div class="row">
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="text" id="due-date" class="form-control" name="due_date"
+              placeholder="{% translate 'Start Date' %}" />
+            <label for="due-date">{% translate 'Start Date' %}</label>
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="text" id="due-date" class="form-control" name="due_date"
+              placeholder="{% translate 'End Date' %}" />
+            <label for="due-date">{% translate 'End Date' %}</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="repeater">
+        <div data-repeater-list="outer-list">
+          <div data-repeater-item>
+            <div class="row" id="text-input">
+
+              <small class="text-light fw-medium">Days</small>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Mon </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Tue </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Wed </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Thu </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Fri </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Sat </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check mt-3">
+                  <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
+                  <label class="form-check-label" for="defaultCheck1"> Sun </label>
+                </div>
+              </div>
+              <div class="col-sm mb-4">
+                <div class="form-check ">
+                  <button type="button" data-repeater-delete class="btn btn-danger">Delete</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="inner-repeater">
+              <div data-repeater-list="inner-list">
+                <div data-repeater-item>
+
+                  <div class="row" id="inner-text-input">
+                    <div class="col-md-4">
+                      <div class="form-floating form-floating-outline mb-4">
+                        <input type="text" class="form-control" placeholder="HH:MM" id="flatpickr-time" />
+                        <label for="flatpickr-time">Start Time</label>
+                      </div>
+                    </div>
+
+                    <div class="col-md-4">
+                      <div class="form-floating form-floating-outline mb-4">
+                        <input type="text" class="form-control" placeholder="HH:MM" id="flatpickr-time" />
+                        <label for="flatpickr-time">End Time</label>
+                      </div>
+                    </div>
+                    <div class="col-md-2">
+                      <div class="form-floating form-floating-outline mb-4">
+                        <input type="text" class="form-control" placeholder="Amount" id="price" />
+                        <label for="price">Price</label>
+                      </div>
+                    </div>
+                    <div class="col-md-1">
+                      <div class="form-floating form-floating-outline mb-4">
+                        <button type="button" data-repeater-delete class="btn btn-danger">Delete</button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+              <button type="button" class="btn btn-primary mb-4" data-repeater-create>
+                Add Time
+              </button>
+            </div>
+
+          </div>
+        </div>
+        <!-- <input data-repeater-create type="button" value="Add Repeater" /> -->
+        <button type="button" class="btn btn-primary mb-4" data-repeater-create>
+          Add Date
+        </button>
+      </div>
+      <div>
+        <button type="submit" class="btn btn-primary me-sm-3 me-1" name="submitButton">
+          {% translate 'Submit' %}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

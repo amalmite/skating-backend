@@ -1,0 +1,246 @@
+{% extends layout_path %} 
+{% load static %}
+{% load i18n %} 
+{% block title%}session creation{% endblock %} 
+{% block vendor_css %} 
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link
+  rel="stylesheet"
+  href="{% static 'vendor/libs/dropzone/dropzone.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}"
+/>
+<link rel="stylesheet" href="{% static 'vendor/libs/tagify/tagify.css' %}" />
+
+<link
+  rel="stylesheet"
+  href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}"
+/>
+<link
+  rel="stylesheet"
+  href="{% static 'vendor/libs/bootstrap-select/bootstrap-select.css'%}"
+/>
+<link rel="stylesheet" href="{% static 'vendor/libs/dropzone/dropzone.css'%}" />
+<link
+  rel="stylesheet"
+  href="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css'%} "
+/>
+
+{% endblock vendor_css %} 
+{% block vendor_js %}
+ {{ block.super }}
+<script src="{% static 'vendor/libs/@form-validation/umd/bundle/popular.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-bootstrap5/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-auto-focus/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-select/bootstrap-select.js'%}"></script>
+<script src="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js'%}"></script>
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/dropzone/dropzone.js' %}"></script>
+<script src="{% static 'vendor/libs/jquery-repeater/jquery-repeater.js' %}"></script>
+<script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+
+{% endblock vendor_js %}
+{% block page_js %}
+{{ block.super }}
+<script src="{% static 'js/app-ecommerce-product-add.js' %}"></script>
+
+<script>
+  var flatpickrTime = document.querySelector("#flatpickr-time");
+
+  flatpickrTime.flatpickr({
+    enableTime: true,
+    noCalendar: true,
+    time_24hr: true,
+  });
+</script>
+{% endblock page_js %} 
+{% block content %}
+<h4 class="py-3 mb-4">
+  <span class="text-muted fw-light">{% translate "Product" %} /</span> {% translate " Creation " %}
+</h4>
+<div class="card">
+  <div class="card-body mt-4">
+    <form
+      class="add-transactions pt-0"
+      id="addTransactionForm"
+      action=""
+      method="post"
+    >
+      {% csrf_token %}
+
+      <!--  product name -->
+
+      <div class="form-floating form-floating-outline mb-4">
+        <input
+          type="text"
+          class="form-control"
+          id="banner-name"
+          name="product-name"
+          placeholder="{% translate 'Product Name' %}"
+        />
+        <label for="product-name">{% translate 'Product Name' %}</label>
+      </div>
+
+            <!--  product name -->
+
+
+<!-- selection radio button -->
+       
+
+      <div class="row">
+        <div class="col-md">
+          <div class="form-check custom-option custom-option-basic mb-4">
+            <label
+              class="form-check-label custom-option-content"
+              for="customRadioTemp1"
+            >
+              <input
+                name="customRadioTemp"
+                class="form-check-input"
+                type="radio"
+                value=""
+                id="customRadioTemp1"
+                checked
+              />
+              <span class="custom-option-header">
+                <span class="h6 mb-0">Rent</span>
+              </span>
+              <span class="custom-option-body">
+                <small> add new product for rent</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-check custom-option custom-option-basic mb-4">
+            <label
+              class="form-check-label custom-option-content"
+              for="customRadioTemp2"
+            >
+              <input
+                name="customRadioTemp"
+                class="form-check-input"
+                type="radio"
+                value=""
+                id="customRadioTemp2"
+              />
+              <span class="custom-option-header">
+                <span class="h6 mb-0">Sales</span>
+              </span>
+              <span class="custom-option-body">
+                <small>Now it is not available</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- selection radio button -->
+
+
+      <!-- product code, price, vat -->
+      <div class="row">
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Product Code"
+            />
+            <label>Product code</label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-floating form-floating-outline mb-4">
+            <input type="number" class="form-control" placeholder="Stock" />
+            <label>Stock</label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="input-group input-group-merge mb-4">
+            <span class="input-group-text">AED</span>
+            <div class="form-floating form-floating-outline">
+              <input type="number" class="form-control" placeholder="499" />
+              <label>Amount</label>
+            </div>
+            <span class="input-group-text">.00</span>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="input-group input-group-merge mb-4">
+            <div class="form-floating form-floating-outline">
+              <input type="number" class="form-control" placeholder="5" />
+              <label>VAT</label>
+            </div>
+            <span class="input-group-text">%</span>
+          </div>
+        </div>
+      </div>
+
+            <!-- product code, price, vat -->
+
+
+      <!-- description -->
+      <div class="form-floating form-floating-outline mb-4">
+        <textarea
+          id="bootstrap-maxlength-example2"
+          class="form-control h-px-100 bootstrap-maxlength-example"
+          placeholder="Description..."
+          rows="3"
+          maxlength="255"
+        ></textarea>
+        <label for="bootstrap-maxlength-example2 ">Description</label>
+      </div>
+            <!-- description -->
+
+
+      <!-- Image Upload -->
+      <div class="card mb-4">
+        <div class="card-body">
+          <div action="/upload" class="dropzone needsclick" id="dropzone-basic">
+            <div class="dz-message needsclick my-5">
+              Drag and drop your image here
+              <small class="text-muted d-block fs-6 my-2">or</small>
+              <span
+                class="needsclick btn btn-outline-primary d-inline"
+                id="btnBrowse"
+                >Browse image</span
+              >
+            </div>
+            <div class="fallback">
+              <input name="file" type="file" />
+            </div>
+          </div>
+          </div>
+        </div>
+
+        <!-- Image upload -->
+
+        <!-- submit button -->
+      <div>
+        <button
+          type="submit"
+          class="btn btn-primary me-sm-3 me-1"
+          name="submitButton"
+        >
+          {% translate 'Submit' %}
+        </button>
+      </div>
+
+      <!-- submit button -->
+    </form>
+    <!-- form end -->
+  </div>
+</div>
+{% endblock %}

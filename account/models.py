@@ -253,7 +253,7 @@ class SessionScheduling(models.Model):
     no_of_slot = models.PositiveIntegerField(null=True)
     duration = models.PositiveIntegerField()
     skate = models.ForeignKey(Skate, on_delete=models.CASCADE)
-    total_slot = models.PositiveIntegerField(default=70)
+    admits = models.PositiveIntegerField(default=70)
 
     def __str__(self):
         return f"{self.from_date} to {self.to_date}"
@@ -288,6 +288,120 @@ class SkateBooking(models.Model):
         return f"{self.user.username}'s booking for {self.session} - Status: {self.status}"
 
 
+class Transaction(models.Model):
+    customer = models.CharField(max_length=150)
+    transaction_date = models.DateField()
+    due_date = models.DateField()
+    total = models.DecimalField(max_digits=20, decimal_places=2)
+    status = models.CharField(max_length=20, choices=[("Paid", "Paid"), ("Due", "Due"), ("Canceled", "Canceled")])
+
+    def __str__(self):
+        return self.customer
+
+# class Session(models.Model):
+#     SESSION_TYPES = (
+#         ('hour', 'Hourly'),
+#         ('membership', 'Membsership'),
+#     )
+#     name = models.CharField(max_length=255)
+#     price = models.DecimalField(max_digits=20, decimal_places=2)
+#     vat = models.DecimalField(max_digits=5,decimal_places=2)
+#     description = models.TextField()
+#     image1 = models.FileField(upload_to='session/')
+#     image2 = models.FileField(upload_to='session/')
+#     session_type = models.CharField(max_length=10, choices=SESSION_TYPES)
+#     hour = models.PositiveSmallIntegerField(null=True, blank=True)
+#     month = models.PositiveSmallIntegerField(null=True, blank=True)
+#     day = models.PositiveSmallIntegerField(null=True, blank=True)
+#     membership_total_sessions = models.PositiveIntegerField(null=True, blank=True)
+
+
+#     # or 
+
+class Session(models.Model):
+    SESSION_TYPES = (
+        ('hour', 'Hourly'),
+        ('month', 'Monthly'),
+    )
+    name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=20, decimal_places=2)
+    vat = models.DecimalField(max_digits=5,decimal_places=2)
+    description = models.TextField()
+    image1 = models.FileField(upload_to='session/',null=True,blank=True)
+    image2 = models.FileField(upload_to='session/',null=True,blank=True)
+    session_type = models.CharField(max_length=10, choices=SESSION_TYPES)
+    
+
+    def __str__(self):
+        return f"Session - {self.name} {self.session_type}"
+
+    class Meta:
+        verbose_name = "Session"
+        verbose_name_plural = "Sessions"
 
 
 
+class HourlySession(models.Model):
+    session = models.OneToOneField(Session,on_delete=models.CASCADE)
+    hour = models.PositiveSmallIntegerField(null=True, blank=True)
+    minute = models.PositiveSmallIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.session.name} {self.hour}"
+
+
+
+
+class MembershipSession(models.Model):
+    session = models.OneToOneField(Session,on_delete=models.CASCADE)
+    month = models.PositiveSmallIntegerField(null=True, blank=True)
+    day = models.PositiveSmallIntegerField(null=True, blank=True)
+    total_sessions = models.PositiveIntegerField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.session.name} {self.month}"
+
+
+
+class Product1(models.Model):
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2) 
+    stock = models.IntegerField()
+    picture = models.ImageField(upload_to='products/')  
+    vat = models.DecimalField(max_digits=5, decimal_places=2)
+    description = models.TextField()
+    is_sale = models.BooleanField(default=False)
+    is_rent = models.BooleanField(default=True)
+
+
+class HomeAdvertisement(models.Model):
+    banner_name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    is_session = models.BooleanField(default=False)
+    is_url = models.BooleanField(default=False)
+    session = models.ForeignKey(Session,on_delete=models.CASCADE ,null=True,blank=True)
+    url = models.URLField(null=True,blank=True)
+    button_name = models.CharField(max_length=200)
+    image = models.FileField(upload_to='banner/',null=True,blank=True)
+    banner_text1 = models.CharField(max_length=200)
+    banner_text2 = models.CharField(max_length=200)
+    banner_text3 = models.CharField(max_length=200)
+
+
+class SessionDate(models.Model):
+    session = models.ForeignKey(Session,on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    monday = models.BooleanField(default=False)
+    tuesday = models.BooleanField(default=False)
+    sunday = models.BooleanField(default=False)
+
+
+class SessionSchedule(models.Model):
+    session_date = models.ForeignKey(SessionDate, on_delete=models.CASCADE)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    total_admissions =models.PositiveBigIntegerField()

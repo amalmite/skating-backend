@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Session</title>
+</head>
+<body>
+<h1>Session Creation</h1>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  {{ session_form.as_p }}
+
+  <div id="hour_fields" style="display: none;">
+    {{ hourly_session_form.as_p }}
+  </div>
+  <div id="membership_fields" style="display: none;">
+    {{ membership_session_form.as_p }}
+  </div>
+  <button type="submit">Submit</button>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const sessionType = document.getElementById('id_session_type');
+
+  const hourFields = document.getElementById('hour_fields');
+  const membershipFields = document.getElementById('membership_fields');
+
+  sessionType.addEventListener('change', function() {
+    if (this.value === 'hour') {
+      hourFields.style.display = 'block';
+      membershipFields.style.display = 'none';
+    } else if (this.value === 'month') {
+      hourFields.style.display = 'none';
+      membershipFields.style.display = 'block';
+    }
+  });
+});
+</script>
+
+</body>
+</html>

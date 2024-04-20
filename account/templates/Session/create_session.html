@@ -1,0 +1,236 @@
+{% extends layout_path %}
+
+{% load static %}
+{% load i18n %}
+
+{% block title %}session creation{% endblock %}
+
+{% block vendor_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'vendor/libs/select2/select2.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/@form-validation/umd/styles/index.min.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/flatpickr/flatpickr.css' %}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-select/bootstrap-select.css'%}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/dropzone/dropzone.css'%}" />
+<link rel="stylesheet" href="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.css'%} " />
+{% endblock vendor_css %}
+
+{% block vendor_js %}
+{{ block.super }}
+<script src="{% static 'vendor/libs/select2/select2.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/bundle/popular.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-bootstrap5/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/@form-validation/umd/plugin-auto-focus/index.min.js' %}"></script>
+<script src="{% static 'vendor/libs/flatpickr/flatpickr.js' %}"></script>
+<script src="{% static 'vendor/libs/bootstrap-select/bootstrap-select.js'%}"></script>
+<script src="{% static 'vendor/libs/dropzone/dropzone.js'%}"></script>
+<script src="{% static 'vendor/libs/bootstrap-maxlength/bootstrap-maxlength.js'%}"></script>
+
+{% endblock vendor_js %}
+
+{% block page_js %}
+{{ block.super }}
+{% endblock page_js %}
+
+
+{% block content %}
+
+<h4 class="py-3 mb-4">
+  <span class="text-muted fw-light">{% translate "Session" %} /</span> {% translate " Creation " %}
+</h4>
+<div class="card">
+  <div class="card-body mt-4">
+    <form class="add-transactions pt-0" id="addTransactionForm" action="" method="post">
+      {% csrf_token %}
+
+      <div class="form-floating form-floating-outline mb-4">
+        <input type="text" class="form-control " id="banner-name" name="session-name"
+          placeholder="{% translate 'Session Name' %}" />
+        <label for="session-name">{% translate 'Session Name' %}</label>
+      </div>
+
+
+
+
+      <div class="row">
+        <div class="col-md ">
+          <div class="form-check custom-option custom-option-basic mb-4">
+            <label class="form-check-label custom-option-content" for="customRadioTemp1">
+              <input name="customRadioTemp" class="form-check-input" type="radio" value="" id="customRadioTemp1" />
+              <span class="custom-option-header">
+                <span class="h6 mb-0">Hourly Session</span>
+              </span>
+              <span class="custom-option-body">
+                <small>select add new hourly session</small>
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <div class="col-md">
+          <div class="form-check custom-option custom-option-basic mb-4">
+            <label class="form-check-label custom-option-content" for="customRadioTemp2">
+              <input name="customRadioTemp" class="form-check-input" type="radio" value="" id="customRadioTemp2" />
+              <span class="custom-option-header">
+                <span class="h6 mb-0">Membership Session</span>
+              </span>
+              <span class="custom-option-body">
+                <small>select add new membership session</small>
+              </span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="membership_session">
+        <div class="row">
+          <div class="col-md ">
+            <div class="form-floating form-floating-outline mb-4">
+              <input type="number" class="form-control" placeholder="Month" />
+              <label>Duration in Month</label>
+            </div>
+          </div>
+          <div class="col-md ">
+            <div class="form-floating form-floating-outline mb-4">
+              <input type="number" class="form-control" placeholder="Days" />
+              <label>Duration in Day</label>
+            </div>
+          </div>
+
+          <div class="col-md ">
+            <div class="form-floating form-floating-outline mb-4">
+              <input type="number" class="form-control" placeholder="Number session" />
+              <label>Number of sessions</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div id="hour_session">
+        <div class="row">
+          <div class="col-md">
+            <div class="form-floating form-floating-outline mb-4">
+              <input type="number" class="form-control" placeholder="Hours" />
+              <label>Duration in Hours</label>
+            </div>
+          </div>
+          <div class="col-md">
+            <div class="form-floating form-floating-outline mb-4">
+              <input type="number" class="form-control" placeholder="Minutes" />
+              <label>Duration in Minutes</label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="row">
+        <div class="col-md">
+          <div class="input-group input-group-merge  mb-4">
+            <span class="input-group-text">AED</span>
+            <div class="form-floating form-floating-outline">
+              <input type="number" class="form-control" placeholder="499" />
+              <label>Amount</label>
+            </div>
+            <span class="input-group-text">.00</span>
+          </div>
+        </div>
+
+
+        <div class="col-md">
+          <div class="input-group input-group-merge mb-4">
+            <div class="form-floating form-floating-outline ">
+              <input type="number" class="form-control" placeholder="5" />
+              <label>VAT</label>
+            </div>
+            <span class="input-group-text">%</span>
+          </div>
+        </div>
+        </div>
+        
+
+
+
+        <div class="form-floating form-floating-outline mb-4">
+          <textarea id="bootstrap-maxlength-example2" class="form-control h-px-100 bootstrap-maxlength-example"
+            placeholder="Description..." rows="3" maxlength="255"></textarea>
+          <label for="bootstrap-maxlength-example2 ">Description</label>
+        </div>
+
+
+
+        <div class="row">
+          <div class="col-md">
+            <div class="dropzone needsclick  mb-4" id="dropzone-basic">
+              <div class="dz-message needsclick">
+                Drop images for Home page
+                <span class="note needsclick">(Home page <span class="fw-medium">not</span> actually uploaded.)</span>
+              </div>
+              <div class="fallback">
+                <input name="file" type="file" />
+              </div>
+            </div>
+          </div>
+
+
+          <div class="col-md">
+            <div class="dropzone needsclick  mb-4" id="dropzone-basic">
+              <div class="dz-message needsclick">
+                Drop images for description page
+                <span class="note needsclick">(Description <span class="fw-medium">not</span> actually uploaded.)</span>
+              </div>
+              <div class="fallback">
+                <input name="file" type="file" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div>
+          <button type="submit" class="btn btn-primary me-sm-3 me-1" name="submitButton">{% translate 'Submit'%}</button>
+        </div>
+
+    </form>
+
+
+  </div>
+</div>
+
+
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+
+    const is_hour = document.getElementById("customRadioTemp1");
+    const is_memeber = document.getElementById("customRadioTemp2");
+
+    const hourSession = document.getElementById("hour_session");
+    const membershipSession = document.getElementById("membership_session");
+
+    membershipSession.style.display = "none";
+    hourSession.style.display = "none";
+
+
+
+    is_hour.addEventListener("change", function () {
+      if (this.checked) {
+        hourSession.style.display = "block";
+        membershipSession.style.display = "none";
+      }
+    });
+
+    is_memeber.addEventListener("change", function () {
+      if (this.checked) {
+        hourSession.style.display = "none";
+        membershipSession.style.display = "block";
+      }
+    });
+  });
+</script>
+
+{% endblock %}
+

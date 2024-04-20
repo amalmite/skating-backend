@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from .serializers import *
 from .models import *
+from .forms import *
 from django.core.mail import send_mail
 from rest_framework.serializers import ValidationError
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -41,6 +42,58 @@ class HeaderForm(TemplateView):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         return context
     
+from datetime import date
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.views.generic import TemplateView
+from web_project import TemplateLayout
+from .models import Transaction
+from .forms import TransactionForm
+
+
+class SessionCreation( TemplateView):
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        return context
+    
+class SessionSchedule( TemplateView):
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        return context
+    
+
+class ProductCreation( TemplateView):
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        return context
+
+class TransactionAddView( TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        context['current_date'] = date.today().strftime("%Y-%m-%d")
+        return context
+
+    def post(self, request):
+        form = TransactionForm(request.POST)
+        if form.is_valid():
+            if not self.transaction_exists(form.cleaned_data):
+                form.save()
+                messages.success(request, 'Transaction Added')
+            else:
+                messages.error(request, 'Transaction already exists')
+        else:
+            messages.error(request, 'Transaction Failed')
+        return redirect('index')
+
+    def transaction_exists(self, cleaned_data):
+        return Transaction.objects.filter(
+            customer__iexact=cleaned_data['customer'],
+            transaction_date=cleaned_data['transaction_date'],
+            due_date=cleaned_data['due_date'],
+            total=cleaned_data['total'],
+            status=cleaned_data['status']
+        ).exists()
 
 def index(request):
     return HttpResponse('hello')
@@ -52,6 +105,103 @@ def logout_admin(request):
     logout(request)
     return redirect('index') 
 
+
+
+from django.shortcuts import render, redirect
+from django import forms
+from .models import Session, HourlySession, MembershipSession
+
+class SessionCreateForm(forms.ModelForm):
+    class Meta:
+        model = Session
+        fields = ['name', 'price', 'vat', 'description', 'session_type']
+
+class HourlySessionForm(forms.ModelForm):
+    class Meta:
+        model = HourlySession
+        fields = ['hour', 'minute']
+
+class MembershipSessionForm(forms.ModelForm):
+    class Meta:
+        model = MembershipSession
+        fields = ['month', 'day', 'total_sessions']
+
+from django.shortcuts import render, redirect
+from django.views.generic import TemplateView
+
+# class CreateSession(TemplateView):
+#     # def get_context_data(self, **kwargs):
+#         # context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+#         # # context = super().get_context_data(**kwargs)
+#         # session_form = SessionCreateForm()
+#         # hourly_session_form = HourlySessionForm()
+#         # membership_session_form = MembershipSessionForm()
+#         # context['session_form'] = session_form
+#         # context['hourly_session_form'] = hourly_session_form
+#         # context['membership_session_form'] = membership_session_form
+#         # return context
+#     def get_context_data(self, **kwargs):
+#         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+#         return context
+
+#     def post(self, request, *args, **kwargs):
+#         if request.method == 'POST':
+#           name = request.POST.get('name')
+#           description = request.POST.get('description')
+#           price = request.POST.get('price')
+#           vat = request.POST.get('vat')
+#           Session.objects.create(
+#               name=name,
+#               description=description,
+#               price=price,
+#               vat=vat
+#           )
+#           return HttpResponse('LjbkjsbdfksjbdfksjbcfkjBSzckJSABb')
+
+from django.shortcuts import render, redirect
+from django import forms
+from .models import Session, HourlySession, MembershipSession
+
+class SessionCreateForm(forms.ModelForm):
+    class Meta:
+        model = Session
+        fields = ['name', 'price', 'vat', 'description', 'session_type']
+
+class HourlySessionForm(forms.ModelForm):
+    class Meta:
+        model = HourlySession
+        fields = ['hour', 'minute']
+
+class MembershipSessionForm(forms.ModelForm):
+    class Meta:
+        model = MembershipSession
+        fields = ['month', 'day', 'total_sessions']
+
+def create_session(request):
+    if request.method == 'POST':
+        session_form = SessionCreateForm(request.POST, request.FILES)
+        hourly_session_form = HourlySessionForm(request.POST)
+        membership_session_form = MembershipSessionForm(request.POST)
+
+        if session_form.is_valid():
+            session = session_form.save()
+            session_type = session_form.cleaned_data['session_type']
+            if session_type == 'hour':
+                if hourly_session_form.is_valid():
+                    hour_session = hourly_session_form.save(commit=False)
+                    hour_session.session = session
+                    hour_session.save()
+            elif session_type == 'month':
+                if membership_session_form.is_valid():
+                    membership_session = membership_session_form.save(commit=False)
+                    membership_session.session = session
+                    membership_session.save()
+            return redirect('/') 
+    else:
+        session_form = SessionCreateForm()
+        hourly_session_form = HourlySessionForm()
+        membership_session_form = MembershipSessionForm()
+    return render(request, 'session.html', {'session_form': session_form, 'hourly_session_form': hourly_session_form, 'membership_session_form': membership_session_form})
 
 
 class UserRegisterView(APIView):
