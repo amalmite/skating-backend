@@ -16,6 +16,8 @@ from random import randint
 from rest_framework import viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 from icerink.settings import ALLOWED_HOSTS
+from django.contrib import messages
+
 # Create your views here.
 
 from django.contrib.auth import logout
@@ -23,38 +25,218 @@ from django.shortcuts import redirect
 
 from django.views.generic import TemplateView
 from web_project import TemplateLayout
+from datetime import date
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.views.generic import TemplateView
+from web_project import TemplateLayout
 
 
-"""
-This file is a view controller for multiple pages as a module.
-Here you can override the page view layout.
-Refer to test/urls.py file for more pages.
-"""
+
+class SessionCreateView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        session_form = SessionForm()
+        hourly_session_form = HourlySessionForm()
+        membership_session_form = MembershipSessionForm()
+        context['session_form'] = session_form
+        context['hourly_session_form'] = hourly_session_form
+        context['membership_session_form'] = membership_session_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        session_form = SessionForm(request.POST, request.FILES)
+        hourly_session_form = HourlySessionForm(request.POST)
+        membership_session_form = MembershipSessionForm(request.POST)
+
+        if session_form.is_valid():
+            session = session_form.save(commit=False)
+            session_type = session_form.cleaned_data['session_type']
+            session.save()  
+
+            if session_type == 'hour':
+                if hourly_session_form.is_valid():
+                    hour_session = hourly_session_form.save(commit=False)
+                    hour_session.session = session
+                    hour_session.save()
+                    messages.success(request, 'Hourly session added successfully.')
+                    return redirect('session_list')
+            elif session_type == 'month':
+                if membership_session_form.is_valid():
+                    membership_session = membership_session_form.save(commit=False)
+                    membership_session.session = session
+                    membership_session.save()
+                    messages.success(request, 'Membsership session added successfully.')
+                    return redirect('session_list')
+            else:
+                messages.error(request, 'Session creation failed.Enter valid data')
+                return redirect('session_create')
+        else:
+            messages.error(request, 'Session creation failed.Enter valid data')
+            return redirect('session_create')  
+          
+    
+
+class SessionListView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        sessions = self.get_total_sessions()
+        context.update({
+            "sessions": sessions,
+            "session_count": sessions.count(),
+            "membership_session_count": self.get_total_membership_sessions(),
+            "hour_session_count": self.get_total_hourly_sessions(),
+            "canceled_session_count": self.get_total_canceled(),
+        })
+        print('status',sessions.values_list('status'))
+        return context
+
+    def get_total_sessions(self):
+        return Session.objects.all().order_by('id')
+    
+    def get_total_hourly_sessions(self):
+        return Session.objects.filter(session_type='hour').count()
+    
+    def get_total_membership_sessions(self):
+        return Session.objects.filter(session_type='month').count()
+
+    def get_total_canceled(self):
+        return Session.objects.filter(status=False).count()
+
+
+
+class SessionUpdateView(TemplateView):
+    def get_context_data(self,id, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        session = get_object_or_404(Session, pk=id)
+        session_form = SessionUpdateForm(instance=session)
+        if session.session_type == 'hour':
+            hourly_session_form = HourlySessionForm( instance=session.hourlysession or None)
+            membership_session_form = MembershipSessionForm()
+        elif session.session_type == 'month':
+            hourly_session_form = HourlySessionForm()
+            membership_session_form = MembershipSessionForm( instance=session.membershipsession or None)
+        context['session_form'] = session_form
+        context['hourly_session_form'] = hourly_session_form
+        context['membership_session_form'] = membership_session_form
+        return context
+    
+
+    
+    def post(self, request, id,*args, **kwargs):
+        session = get_object_or_404(Session, pk=id)
+        session_form = SessionUpdateForm(request.POST, request.FILES, instance=session)
+        if session.session_type == 'hour':
+            hourly_session_form = HourlySessionForm(request.POST, instance=session.hourlysession or None)
+            membership_session_form = MembershipSessionForm()
+        elif session.session_type == 'month':
+            hourly_session_form = HourlySessionForm()
+            membership_session_form = MembershipSessionForm(request.POST, instance=session.membershipsession or None)
+
+        if session_form.is_valid():
+            session = session_form.save(commit=False)
+            session.save()
+            if session.session_type == 'hour':
+                if hourly_session_form.is_valid():
+                    hourly_session = hourly_session_form.save(commit=False)
+                    hourly_session.save()
+            elif session.session_type == 'month':
+                if membership_session_form.is_valid():
+                    membership_session = membership_session_form.save(commit=False)
+                    membership_session.save()
+            messages.success(request, 'Session updated successfully.')
+            return redirect('session_list')  
+        else:
+            messages.error(request, 'Session updated failed . Enter valid data')
+            return redirect('session_update',id=id)  
+
+
+class ProductCreateView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        product_form = ProductForm()
+        context['product_form'] = product_form
+        return context
+
+    def post(self, request, *args, **kwargs):
+        product_form = ProductForm(request.POST, request.FILES)
+        if product_form.is_valid():
+            product_form.save()
+            messages.success(request, 'Product added successfully.')
+
+            return redirect('product_list')
+        else:
+            messages.error(request, 'Failed to add product. Please enter valid data.')
+            return redirect('product_create')
+
+class ProductListView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        products = self.get_total_products()
+        context.update({
+            "products": products,
+            "product_count": products.count(),
+            "available_products": self.get_total_available_products(),
+            "canceled_products": self.get_total_canceled(),
+            "rental_products": self.get_total_rent(),
+
+        })
+        return context
+
+    def get_total_products(self):
+        return Product.objects.all().order_by('id')
+    
+    def get_total_available_products(self):
+        return Product.objects.filter(status=True).count()
+    
+    def get_total_canceled(self):
+        return Product.objects.filter(status=False).count()
+    
+    def get_total_rent(self):
+        return Product.objects.filter(is_rent=True).count()
+
+
+class ProductUpdateView(TemplateView):
+
+    def get_context_data(self, id,**kwargs):
+        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
+        product = get_object_or_404(Product,id=id)
+        product_form = ProductUpdateForm(instance=product)
+        context['product_form'] = product_form
+        return context
+
+    def post(self, request,id, *args, **kwargs):
+        product = get_object_or_404(Product,id=id)
+
+        product_form = ProductUpdateForm(request.POST, request.FILES,instance=product)
+        if product_form.is_valid():
+            product_form.save()
+            messages.success(request, 'Product updated successfully.')
+
+            return redirect('product_list')
+        else:
+            messages.error(request, 'Failed to update product. Please enter valid data.')
+            return redirect('product_update',id=id)
+
+
 
 
 class testView(TemplateView):
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         return context
+
+
     
 class HeaderForm(TemplateView):
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         return context
     
-from datetime import date
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.views.generic import TemplateView
-from web_project import TemplateLayout
-from .models import Transaction
-from .forms import TransactionForm
-
-
-class SessionCreation( TemplateView):
-    def get_context_data(self, **kwargs):
-        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-        return context
     
 class SessionSchedule( TemplateView):
     def get_context_data(self, **kwargs):
@@ -62,13 +244,12 @@ class SessionSchedule( TemplateView):
         return context
     
 
-class ProductCreation( TemplateView):
-    def get_context_data(self, **kwargs):
-        context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-        return context
 
-class TransactionAddView( TemplateView):
 
+
+
+
+class TransactionAddView(TemplateView):
     def get_context_data(self, **kwargs):
         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
         context['current_date'] = date.today().strftime("%Y-%m-%d")
@@ -107,102 +288,54 @@ def logout_admin(request):
 
 
 
-from django.shortcuts import render, redirect
-from django import forms
-from .models import Session, HourlySession, MembershipSession
 
-class SessionCreateForm(forms.ModelForm):
-    class Meta:
-        model = Session
-        fields = ['name', 'price', 'vat', 'description', 'session_type']
 
-class HourlySessionForm(forms.ModelForm):
-    class Meta:
-        model = HourlySession
-        fields = ['hour', 'minute']
 
-class MembershipSessionForm(forms.ModelForm):
-    class Meta:
-        model = MembershipSession
-        fields = ['month', 'day', 'total_sessions']
+from django.shortcuts import render, redirect, get_object_or_404
 
-from django.shortcuts import render, redirect
-from django.views.generic import TemplateView
 
-# class CreateSession(TemplateView):
-#     # def get_context_data(self, **kwargs):
-#         # context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-#         # # context = super().get_context_data(**kwargs)
-#         # session_form = SessionCreateForm()
-#         # hourly_session_form = HourlySessionForm()
-#         # membership_session_form = MembershipSessionForm()
-#         # context['session_form'] = session_form
-#         # context['hourly_session_form'] = hourly_session_form
-#         # context['membership_session_form'] = membership_session_form
-#         # return context
-#     def get_context_data(self, **kwargs):
-#         context = TemplateLayout.init(self, super().get_context_data(**kwargs))
-#         return context
+# def SessionDelete(request,id):
+#     session = get_object_or_404(Session,id=id)
+#     session.delete()
+#     messages.success(request, 'Session Deleted')
+#     return redirect('list_session')
 
-#     def post(self, request, *args, **kwargs):
-#         if request.method == 'POST':
-#           name = request.POST.get('name')
-#           description = request.POST.get('description')
-#           price = request.POST.get('price')
-#           vat = request.POST.get('vat')
-#           Session.objects.create(
-#               name=name,
-#               description=description,
-#               price=price,
-#               vat=vat
-#           )
-#           return HttpResponse('LjbkjsbdfksjbdfksjbcfkjBSzckJSABb')
 
-from django.shortcuts import render, redirect
-from django import forms
-from .models import Session, HourlySession, MembershipSession
 
-class SessionCreateForm(forms.ModelForm):
-    class Meta:
-        model = Session
-        fields = ['name', 'price', 'vat', 'description', 'session_type']
 
-class HourlySessionForm(forms.ModelForm):
-    class Meta:
-        model = HourlySession
-        fields = ['hour', 'minute']
 
-class MembershipSessionForm(forms.ModelForm):
-    class Meta:
-        model = MembershipSession
-        fields = ['month', 'day', 'total_sessions']
 
-def create_session(request):
-    if request.method == 'POST':
-        session_form = SessionCreateForm(request.POST, request.FILES)
-        hourly_session_form = HourlySessionForm(request.POST)
-        membership_session_form = MembershipSessionForm(request.POST)
 
-        if session_form.is_valid():
-            session = session_form.save()
-            session_type = session_form.cleaned_data['session_type']
-            if session_type == 'hour':
-                if hourly_session_form.is_valid():
-                    hour_session = hourly_session_form.save(commit=False)
-                    hour_session.session = session
-                    hour_session.save()
-            elif session_type == 'month':
-                if membership_session_form.is_valid():
-                    membership_session = membership_session_form.save(commit=False)
-                    membership_session.session = session
-                    membership_session.save()
-            return redirect('/') 
-    else:
-        session_form = SessionCreateForm()
-        hourly_session_form = HourlySessionForm()
-        membership_session_form = MembershipSessionForm()
-    return render(request, 'session.html', {'session_form': session_form, 'hourly_session_form': hourly_session_form, 'membership_session_form': membership_session_form})
 
+# def create_session(request):
+#     if request.method == 'POST':
+#         session_form = SessionCreateForm(request.POST, request.FILES)
+#         hourly_session_form = HourlySessionForm(request.POST)
+#         membership_session_form = MembershipSessionForm(request.POST)
+
+#         if session_form.is_valid():
+#             session = session_form.save()
+#             session_type = session_form.cleaned_data['session_type']
+#             if session_type == 'hour':
+#                 if hourly_session_form.is_valid():
+#                     hour_session = hourly_session_form.save(commit=False)
+#                     hour_session.session = session
+#                     hour_session.save()
+#             elif session_type == 'month':
+#                 if membership_session_form.is_valid():
+#                     membership_session = membership_session_form.save(commit=False)
+#                     membership_session.session = session
+#                     membership_session.save()
+#             return redirect('/') 
+#     else:
+#         session_form = SessionCreateForm()
+#         hourly_session_form = HourlySessionForm()
+#         membership_session_form = MembershipSessionForm()
+#     return render(request, 'session.html', {'session_form': session_form, 'hourly_session_form': hourly_session_form, 'membership_session_form': membership_session_form})
+
+
+
+# Employee & Use API
 
 class UserRegisterView(APIView):
 
@@ -530,9 +663,9 @@ class EmployeeListView(generics.ListAPIView):
     queryset = Employee.objects.all()
     serializer_class = EmployeeSerializer
 
-class SkatingProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = SkatingProductSerializer
+# class SkatingProductViewSet(viewsets.ModelViewSet):
+#     queryset = Product.objects.all()
+#     serializer_class = SkatingProductSerializer
 
 
 
@@ -601,40 +734,40 @@ def getRoutes(request):
 #                 status=status.HTTP_400_BAD_REQUEST,
 #             )
 #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-from datetime import timedelta,datetime
+# from datetime import timedelta,datetime
 
-class CreateSessionAPIView(APIView):
-    def get(self,request):
-        data =SessionScheduling.objects.all()
-        serializers=SessionSchedulingSerializer(data,many=True)
-        return Response(serializers.data)
+# class CreateSessionAPIView(APIView):
+#     def get(self,request):
+#         data =SessionScheduling.objects.all()
+#         serializers=SessionSchedulingSerializer(data,many=True)
+#         return Response(serializers.data)
     
-    def post(self, request):
-        serializer = SessionSchedulingSerializer(data=request.data)
-        if serializer.is_valid():
-            from_date = serializer.validated_data['from_date']
-            to_date = serializer.validated_data['to_date']
-            start_time = serializer.validated_data['start_time']
-            end_time = serializer.validated_data['end_time']
-            no_of_slot = serializer.validated_data['no_of_slot']
-            delta = timedelta(days=1)
-            current_date = from_date
-            start_datetime = datetime.combine(datetime.today(), start_time)
-            while current_date <= to_date:
-                for i in range(no_of_slot):
-                    session_start_time = start_datetime + timedelta(hours=i)
-                    session_end_time = session_start_time + timedelta(hours=1)
-                    session = SessionScheduling.objects.create(
-                        from_date=current_date,
-                        to_date=current_date,
-                        start_time=session_start_time.time(),  
-                        end_time=session_end_time.time(), 
-                    )
-                    session.save()
-                current_date += delta
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#     def post(self, request):
+#         serializer = SessionSchedulingSerializer(data=request.data)
+#         if serializer.is_valid():
+#             from_date = serializer.validated_data['from_date']
+#             to_date = serializer.validated_data['to_date']
+#             start_time = serializer.validated_data['start_time']
+#             end_time = serializer.validated_data['end_time']
+#             no_of_slot = serializer.validated_data['no_of_slot']
+#             delta = timedelta(days=1)
+#             current_date = from_date
+#             start_datetime = datetime.combine(datetime.today(), start_time)
+#             while current_date <= to_date:
+#                 for i in range(no_of_slot):
+#                     session_start_time = start_datetime + timedelta(hours=i)
+#                     session_end_time = session_start_time + timedelta(hours=1)
+#                     session = SessionScheduling.objects.create(
+#                         from_date=current_date,
+#                         to_date=current_date,
+#                         start_time=session_start_time.time(),  
+#                         end_time=session_end_time.time(), 
+#                     )
+#                     session.save()
+#                 current_date += delta
+#             return Response(status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    def delete(self, request):
-        SessionScheduling.objects.all().delete()
-        return Response({"message": "deleted"}, status=status.HTTP_204_NO_CONTENT)
+#     def delete(self, request):
+#         SessionScheduling.objects.all().delete()
+#         return Response({"message": "deleted"}, status=status.HTTP_204_NO_CONTENT)

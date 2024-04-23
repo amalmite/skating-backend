@@ -1,37 +1,37 @@
 from django.urls import path, include
-from .views import (
-    UserRegisterView,
-    AccountActivationView,
-    UserDetailAPIView,
-    ChangePasswordView,
-    ForgotPasswordView,
-    ResetPasswordView,
-    Login,
-    ChangeEmailVerifyView,
-    ChangeEmailView,
-    EmployeeRegistrationAPIView,
-    EmployeeProfileAPiView,
-    EmployeeLoginApiView,
-    EmployeeListView,
-    SkatingProductViewSet,getRoutes,CreateSessionAPIView)
 from .views import *
 from rest_framework.routers import DefaultRouter
 from django.conf import settings
 from django.conf.urls.static import static
 
 router = DefaultRouter()
-router.register(r'products', SkatingProductViewSet)
+# router.register(r'products', SkatingProductViewSet)
 
 
 
 urlpatterns = [
     path('',testView.as_view(template_name="test.html"),name="test"),
+    # path('',testapiview,name="test"),
     path('header-form/', TransactionAddView.as_view(template_name="header_form.html"), name="header-form"),
-    path('session-creation/', SessionCreation.as_view(template_name="Session/create_session.html"), name="session-creation"),
-    path('product-creation/', ProductCreation.as_view(template_name="Product/create_product.html"), name="product-creation"),
-    path('session-schedule/', SessionSchedule.as_view(template_name="Session/session_schedule.html"), name="session-schedule"),
-    # path('session/', CreateSession.as_view(template_name = "session.html"), name="session"),
-    path('session/', create_session, name="session"),
+
+
+    path('session_create/', SessionCreateView.as_view(template_name="Session/create_session.html"), name="session_create"),
+    path('session_list/', SessionListView.as_view(template_name = "Session/list_session.html"), name="session_list"),
+    path('session_update/<int:id>/', SessionUpdateView.as_view(template_name = "Session/update_session.html"), name="session_update"),
+
+    path('sessio_schedule/', SessionSchedule.as_view(template_name="Session/session_schedule.html"), name="session_schedule"),
+    
+    path('product_create/', ProductCreateView.as_view(template_name="Product/create_product.html"), name="product_create"),
+    path('product_update/<int:id>/', ProductUpdateView.as_view(template_name="Product/update_product.html"), name="product_update"),
+
+    path('product_list/', ProductListView.as_view(template_name="Product/list_product.html"), name="product_list"),
+
+
+
+
+
+    
+    # path('session/', create_session, name="session"),
 
 
 
@@ -84,7 +84,7 @@ urlpatterns = [
     ),
     path("api/employee/list/", EmployeeListView.as_view(), name="employee_list"),
 
-    path("api/session/", CreateSessionAPIView.as_view(), name="employee_list"),
+    # path("api/session/", CreateSessionAPIView.as_view(), name="employee_list"),
 
     path("api/", getRoutes)
 

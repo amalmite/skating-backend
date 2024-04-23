@@ -184,7 +184,7 @@ $(function () {
           ]
         },
         {
-          text: '<i class="mdi mdi-plus me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Add Transaction</span>',
+          text: '<i class="mdi mdi-plus me-0 me-sm-1"></i><span class="d-none d-sm-inline-block">Session Transaction</span>',
           className: 'add-new btn btn-primary ms-n1 waves-effect waves-light' + (addTransactionBtn ? '' : ' disabled'),
           action: function (e, dt, button, config) {
             window.location.href = '/transactions/add/';

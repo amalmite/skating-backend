@@ -227,16 +227,16 @@ class EmployeeLoginSerializer(serializers.Serializer):
         raise serializers.ValidationError("Incorrect username or password.")
 
 
-class SkatingProductSerializer(serializers.ModelSerializer):
+# class SkatingProductSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = Product
-        fields="__all__"
+#     class Meta:
+#         model = Product
+#         fields="__all__"
 
-class SessionSchedulingSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = SessionScheduling
-        fields = '__all__'
+# class SessionSchedulingSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = SessionScheduling
+#         fields = '__all__'
 
 
 # login

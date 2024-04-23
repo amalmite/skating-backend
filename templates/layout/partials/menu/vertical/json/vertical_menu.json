@@ -35,31 +35,39 @@
       "slug": "session",
       "submenu": [
         {
-          "url": "session-creation",
-          "name": "Add New Session",
-          "slug": "session-creation"
+          "url": "session_create",
+          "name": "Add Session",
+          "slug": "session_create"
         },
         {
-          "url": "session-schedule",
+          "url": "session_list",
+          "name": "List Session",
+          "slug": "session_list"
+        },
+        {
+          "url": "session_schedule",
           "name": "Session Schedule",
-          "slug": "session-schedule"
+          "slug": "session_schedule"
         }
    
-   
       ]
-    },
-    {
+    },{
       "name": "Product",
       "icon": "menu-icon tf-icons mdi mdi-window-maximize",
       "slug": "product",
       "submenu": [
         {
-          "url": "product-creation",
-          "name": "Add New Product",
-          "slug": "product-creation"
+          "url": "product_create",
+          "name": "Add Product",
+          "slug": "product_create"
+        },
+        {
+          "url": "product_list",
+          "name": "Product List",
+          "slug": "product_list"
         }
-   
       ]
     }
+
   ]
 }
